@@ -3,25 +3,26 @@ from src.model import Instance, Node
 
 
 class DistanceMatrix:
-    def __init__(self) -> None:
-        self.distance_matrix: np.array | None = None
+    def __init__(self, instance: Instance) -> None:
+        self.instance = instance
+        self.distance_matrix: np.ndarray = self._calculate_distance_matrix(instance)
 
-    def calculate_distance_matrix(self, instance: Instance) -> None:
+    def _calculate_distance_matrix(self, instance: Instance) -> np.ndarray:
         """Calculate the distance matrix for the given instance.
 
         Args:
             instance (Instance): Instance for which the distance matrix should be calculated.
+        
+        Returns:
+            np.ndarray: The distance matrix.
         """
-        if self.distance_matrix is not None:
-            return
-
         coordinates = instance.get_coordinates()
 
         p1 = np.sum(coordinates**2, axis=1)[:, np.newaxis]
         p2 = np.sum(coordinates**2, axis=1)
         p3 = -2 * np.dot(coordinates, coordinates.T)
 
-        self.distance_matrix = np.array(np.sqrt(p1 + p2 + p3)).astype(int)
+        return np.array(np.sqrt(p1 + p2 + p3)).astype(int)
 
     def get_nearest_node(self, pivot_node: Node, other_nodes: list[Node]) -> Node:
         """Get the nearest node to the pivot node from the list of other nodes.
@@ -33,18 +34,30 @@ class DistanceMatrix:
         Returns:
             Node: The nearest node to the pivot node.
         """
-        assert self.distance_matrix is not None, "Distance matrix is not initialized!"
-
         min_distance = float("inf")
         min_node = None
         for node in other_nodes:
-            if node == pivot_node:
-                continue
-
             distance = self.distance_matrix[pivot_node.id, node.id] + node.cost
-
+            # print(f"Distance from {pivot_node} to {node} is {distance}")
             if distance < min_distance:
                 min_distance = distance
                 min_node = node
 
         return min_node
+
+    def get_nodes_distance(self, node: Node, other_node: Node) -> int:
+        return self.distance_matrix[node.id][other_node.id]
+
+    def get_node_to_edge_distance(self, node: Node, edge: tuple[Node, Node], include_cost: bool = True) -> int:
+        anchor_1, anchor_2 = edge
+
+        distance = (
+            self.distance_matrix[anchor_1.id][node.id]
+            + self.distance_matrix[anchor_2.id][node.id]
+            - self.distance_matrix[anchor_1.id][anchor_2.id]
+        )
+
+        if include_cost:
+            distance += node.cost
+
+        return distance
