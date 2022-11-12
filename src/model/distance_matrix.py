@@ -22,7 +22,7 @@ class DistanceMatrix:
         p2 = np.sum(coordinates**2, axis=1)
         p3 = -2 * np.dot(coordinates, coordinates.T)
 
-        return np.array(np.sqrt(p1 + p2 + p3)).astype(int)
+        return np.round(np.array(np.sqrt(p1 + p2 + p3))).astype(int)
 
     def get_nearest_node(self, pivot_node: Node, other_nodes: list[Node]) -> Node:
         """Get the nearest node to the pivot node from the list of other nodes.
@@ -46,7 +46,8 @@ class DistanceMatrix:
         return min_node
 
     def get_nodes_distance(self, node: Node, other_node: Node) -> int:
-        return self.distance_matrix[node.id][other_node.id]
+        res = self.distance_matrix[node.id][other_node.id]
+        return res
 
     def get_node_to_edge_distance(self, node: Node, edge: tuple[Node, Node], include_cost: bool = True) -> int:
         anchor_1, anchor_2 = edge
