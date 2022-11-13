@@ -2,7 +2,7 @@ import networkx as nx
 import seaborn as sns
 from matplotlib import pyplot as plt
 
-from src.algorithms.methods import Method
+from src.algorithms import Method
 from src.model import Grade, Node
 
 plt.rcParams["figure.figsize"] = (16, 12)
@@ -60,7 +60,7 @@ class Visualizer:
         # Normalize node sizes from 200 to 1000
         node_sizes = [node.cost for node in nodes]
         node_sizes = [
-            200 + (1000 - 200) * ((node_size - min(node_sizes)) / (max(node_sizes) - min(node_sizes)))
+            round(200 + (1000 - 200) * ((node_size - min(node_sizes)) / (max(node_sizes) - min(node_sizes))))
             for node_size in node_sizes
         ]
 

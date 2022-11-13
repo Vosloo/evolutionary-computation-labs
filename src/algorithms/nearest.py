@@ -12,7 +12,6 @@ def nearest(
         unselected_nodes = nodes_set - set(selected_nodes)
 
         min_node = distance_matrix.get_nearest_node(curr_node, unselected_nodes)
-        # print(f"Current node: {curr_node}, min node: {min_node}")
 
         selected_nodes.append(min_node)
 

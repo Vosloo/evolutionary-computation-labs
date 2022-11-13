@@ -23,6 +23,12 @@ class Run:
 
         return self.score == __o.score
 
+    def __gt__(self, other: object) -> bool:
+        if not isinstance(other, Run):
+            return False
+
+        return self.score > other.score
+
     def __lt__(self, other: object) -> bool:
         if not isinstance(other, Run):
             return False
