@@ -1,6 +1,8 @@
 import networkx as nx
 import seaborn as sns
 from matplotlib import pyplot as plt
+
+from src.algorithms.methods import Method
 from src.model import Grade, Node
 
 plt.rcParams["figure.figsize"] = (16, 12)
@@ -37,7 +39,7 @@ class Visualizer:
 
         return [gradient[node.cost - min_cost] for node in nodes]
 
-    def visualise_solution(self, grade: Grade, instance_name: str, method_name: str) -> None:
+    def visualise_solution(self, grade: Grade, instance_name: str, method_name: Method) -> None:
         G = nx.Graph()
 
         nodes = grade.best_run.nodes
@@ -66,7 +68,8 @@ class Visualizer:
         nx.draw_networkx_edges(G, pos, width=1.0, alpha=0.5)
         nx.draw_networkx_labels(G, pos, font_size=10, font_family="sans-serif")
 
-        plt.title(f"{instance_name} - {method_name.capitalize()} method")
+        meth_name = method_name.name.replace("_", " ").title()
+        plt.title(f"{instance_name} - {meth_name} method")
         plt.show()
 
     def plot_grades(self, grades: dict[str, Grade]) -> None:

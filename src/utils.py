@@ -22,6 +22,9 @@ def nodes_to_sequence(nodes: list[Node]) -> list[Node]:
     stack = [nodes[0]]
     while stack:
         node = stack.pop(0)
+        if node in visited_nodes:
+            continue
+
         sequence.append(node)
         visited_nodes.add(node)
 
@@ -30,7 +33,6 @@ def nodes_to_sequence(nodes: list[Node]) -> list[Node]:
                 continue
 
             stack.insert(0, connection)
-
     return sequence
 
 

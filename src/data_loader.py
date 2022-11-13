@@ -18,7 +18,7 @@ class DataLoader:
             list[Instance]: List of Instance objects containing the TSP instances.
         """
         data_path = ROOT_DIR / "data"
-        data_files = [f for f in listdir(data_path) if f.endswith(".csv")]
+        data_files = sorted([f for f in listdir(data_path) if f.endswith(".csv")])
 
         instances = {}
         for file in data_files:
@@ -33,4 +33,5 @@ class DataLoader:
                 ),
             )
 
+        print(f"Loaded {len(instances)} instances: {', '.join(instances.keys())}")
         return instances

@@ -23,6 +23,9 @@ class Node:
 
         return False
 
+    def __lt__(self, o: Node) -> bool:
+        return self.id < o.id
+
     def __hash__(self) -> int:
         return self.id
 
