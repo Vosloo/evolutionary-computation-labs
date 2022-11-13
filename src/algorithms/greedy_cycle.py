@@ -13,7 +13,7 @@ def greedy_cycle(
     pivot_node.add_connection(min_node)
     selected_nodes.append(min_node)
 
-    anchor_nodes: tuple[Node, Node] = []
+    anchor_nodes: tuple[Node, Node] | None = None
     for _ in range(node_coverage - 2):
         min_distance = float("inf")
         min_node = None

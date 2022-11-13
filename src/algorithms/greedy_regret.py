@@ -10,7 +10,7 @@ def greedy_regret(
     node_coverage: int,
     distance_matrix: DistanceMatrix,
     k_regret: int,
-    regret_weights: tuple[float, float] | None,
+    regret_weights: tuple[float, float] | None = None,
     **kwargs
 ) -> list[Node]:
     nodes_set = set(nodes)
@@ -30,7 +30,10 @@ def greedy_regret(
 
         possible_nodes = nodes_set - set(selected_nodes)
         nodes_distances = np.array(
-            [[distance_matrix.distance(node, edge) for edge in edges] for node in possible_nodes]
+            [
+                [distance_matrix.get_node_to_edge_distance(node, edge) for edge in edges]
+                for node in possible_nodes
+            ]
         )
 
         nodes_distances_edges = np.argsort(nodes_distances, axis=1)
