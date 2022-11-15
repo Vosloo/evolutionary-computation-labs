@@ -1,8 +1,8 @@
 from itertools import combinations, product
-from random import shuffle
+from random import choice, shuffle
 
-from src.model import DistanceMatrix, Node
-from src.model import Run
+from src.model import DeltaNodes, DistanceMatrix, Node, Run
+
 
 def local_search(
     initial_solution: list[Node],
@@ -14,32 +14,26 @@ def local_search(
 ) -> list[Node]:
     nodes_set = set(nodes)
 
-    current_run = Run(initial_solution[0].id, initial_solution, distance_matrix)
+    current_run = Run(0, initial_solution, distance_matrix)
 
     while True:
         neighbourhood_inter = _inter(current_run.nodes, nodes_set)
         neighbourhood_intra = _intra(current_run.nodes, intra_type)
+        neighbourhood = neighbourhood_inter + neighbourhood_intra
 
         if search_type == "steepest":
-            neighbourhood = neighbourhood_inter + neighbourhood_intra
-            neighbourhood = [
-                Run(neighbour[0].id, neighbour, distance_matrix) for neighbour in neighbourhood
-            ]
-
-            if (new_run := min(neighbourhood)) < current_run:
-                current_run = new_run
+            if (best_delta := min(neighbourhood)) < 0:
+                current_run = Run.from_delta(current_run, best_delta)
             else:
                 break
 
         elif search_type == "greedy":
-            neighbourhood = neighbourhood_inter + neighbourhood_intra
-            starting_node = current_run.nodes[0]
             shuffle(neighbourhood)
 
-            for neighbour in neighbourhood:
-                new_run = Run(starting_node.id, neighbour, distance_matrix)
-                if new_run < current_run:
-                    current_run = new_run
+            for delta in neighbourhood:
+                if delta < 0:
+                    current_run = Run.from_delta(current_run, delta)
+                else:
                     break
             else:
                 break
@@ -50,19 +44,14 @@ def local_search(
     return current_run.nodes
 
 
-def _inter(original_sequence: list[Node], nodes: set[Node]):
+def _inter(original_sequence: list[Node], nodes: set[Node]) -> list[DeltaNodes]:
     og_seq = set(original_sequence)
     changes = product(og_seq, nodes - og_seq)
 
-    neighbourhood = []
+    neighbourhood: list[DeltaNodes] = []
     for change in changes:
-        from_node, to_node = change
-        new_sequence = original_sequence.copy()
-
-        from_ind = original_sequence.index(from_node)
-        new_sequence[from_ind] = to_node
-
-        neighbourhood.append(new_sequence)
+        inter_node, outer_node = change
+        neighbourhood.append(DeltaNodes(inter_node, outer_node, is_outer=True))
 
     return neighbourhood
 
