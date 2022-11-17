@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from src.model import DeltaNodes, DistanceMatrix, Node
+from src.model import ADelta, DistanceMatrix, Node
 
 
 @dataclass
@@ -46,32 +46,12 @@ class Run:
         return self.cost + self.distance
 
     @staticmethod
-    def from_delta(current_run: Run, delta: DeltaNodes) -> Run:
-        node_id = delta.nodes[0].id
+    def from_delta(current_run: Run, delta: ADelta) -> Run:
+        delta.apply_nodes(current_run.nodes)
 
-        from_node, to_node = delta.nodes
-        nodes = current_run.nodes
-
-        if delta.is_outer:
-            to_node.set_connections(from_node.connections)
-            from_ind = nodes.index(from_node)
-            nodes[from_ind] = to_node
-
-            mod_cost = to_node.cost - from_node.cost
-            mod_dist = delta.delta - mod_cost
-        else:
-            from_ind = nodes.index(from_node)
-            to_ind = nodes.index(to_node)
-
-            from_connections = from_node.connections
-            from_node.set_connections(to_node.connections)
-            to_node.set_connections(from_connections)
-
-            nodes[from_ind] = to_node
-            nodes[to_ind] = from_node
-
-            mod_cost = 0
-            mod_dist = delta.delta
+        node_id = current_run.nodes[0].id
+        mod_cost = delta.modified_cost
+        mod_dist = delta.modified_distance
 
         return current_run._modify_run(node_id, mod_cost, mod_dist)
 
@@ -87,6 +67,6 @@ class Run:
 
     def _calculate_distance(self) -> int:
         return sum(
-            self._distance_matrix.get_nodes_distance(node, self._selected_nodes[i + 1])
+            self._distance_matrix.get_distance(node, self._selected_nodes[i + 1])
             for i, node in enumerate(self._selected_nodes[:-1])
-        ) + self._distance_matrix.get_nodes_distance(self._selected_nodes[0], self._selected_nodes[-1])
+        ) + self._distance_matrix.get_distance(self._selected_nodes[0], self._selected_nodes[-1])

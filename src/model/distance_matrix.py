@@ -45,7 +45,7 @@ class DistanceMatrix:
 
         return min_node
 
-    def get_nodes_distance(self, node: Node, other_node: Node) -> int:
+    def get_distance(self, node: Node, other_node: Node) -> int:
         res = self.distance_matrix[node.id][other_node.id]
         return res
 
