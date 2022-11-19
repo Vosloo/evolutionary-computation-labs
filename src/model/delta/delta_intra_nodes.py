@@ -1,20 +1,20 @@
 from src.model import DistanceMatrix, Node
-from src.model.delta import ADelta
+from src.model.delta import Delta
 
 
-class DeltaIntraNodes(ADelta):
+class DeltaIntraNodes(Delta):
     def apply_nodes(self, original_sequence: list[Node]) -> list[Node]:
-        from_node, to_node = self.nodes
+        self.original_sequence = original_sequence
 
-        from_ind = original_sequence.index(from_node)
-        to_ind = original_sequence.index(to_node)
+        nodeA, nodeB = self.nodes
 
-        from_connections = from_node.connections
-        from_node.set_connections(to_node.connections)
-        to_node.set_connections(from_connections)
+        nodeA_ind = original_sequence.index(nodeA)
+        nodeB_ind = original_sequence.index(nodeB)
 
-        original_sequence[from_ind] = to_node
-        original_sequence[to_ind] = from_node
+        self._replace_connections(nodeA, nodeB)
+
+        original_sequence[nodeA_ind] = nodeB
+        original_sequence[nodeB_ind] = nodeA
 
         return original_sequence
 
@@ -27,17 +27,37 @@ class DeltaIntraNodes(ADelta):
         return self._delta
 
     def _get_delta(self, distance_matrix: DistanceMatrix) -> float:
-        from_node, to_node = self.nodes
+        nodeA, nodeB = self.nodes
         delta = 0
 
-        from_connections = from_node.connections
-        to_connections = to_node.connections
+        from_connections = nodeA.connections
+        to_connections = nodeB.connections
         for i, from_conn in enumerate(from_connections):
             to_conn = to_connections[i]
             old_dist = distance_matrix.get_distance(
-                from_node, from_conn
-            ) + distance_matrix.get_distance(to_node, to_conn)
-            new_dist = distance_matrix.get_distance(from_node, to_conn) + distance_matrix.get_distance(
-                to_node, from_conn
+                nodeA, from_conn
+            ) + distance_matrix.get_distance(nodeB, to_conn)
+            new_dist = distance_matrix.get_distance(nodeA, to_conn) + distance_matrix.get_distance(
+                nodeB, from_conn
             )
             delta += new_dist - old_dist  # lower is better
+
+    def _replace_connections(self, nodeA: Node, nodeB: Node) -> None:
+        nodeA_connections = nodeA.connections
+        nodeB_connections = nodeB.connections            
+
+        for ind, nodeA_conn in enumerate(nodeA_connections):
+            nodeB_conn = nodeB_connections[ind]
+
+            nodeA.remove_connection(nodeA_conn)
+            nodeB.remove_connection(nodeB_conn)
+
+            if nodeA_conn.prev_connection is None:
+                nodeA_conn.add_prev_connection(nodeB)
+            elif nodeA_conn.next_connection is None:
+                nodeA_conn.add_next_connection(nodeB)
+
+            if nodeB_conn.prev_connection is None:
+                nodeB_conn.add_prev_connection(nodeA)
+            elif nodeB_conn.next_connection is None:
+                nodeB_conn.add_next_connection(nodeA)

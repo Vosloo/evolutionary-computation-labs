@@ -7,28 +7,40 @@ class Node:
         self.x = x
         self.y = y
         self.cost = cost
-        self.connections: list[Node] = []
+        self.next_connection: Node = None
+        self.prev_connection: Node = None
 
-    def add_connection(self, node: Node, to_left: bool = False) -> None:
-        """
-        Adds a node to the connections of current node and vice versa.
-        
-        :param node: Node to add
-        :param to_left: If true, the node will be added to the left of the current node 
-        (Careful: the current node will be added to the right of the node anyway!)
-        """
-        if to_left:
-            self.connections.insert(0, node)
-        else:
-            self.connections.append(node)
-        node.connections.append(self)
+    def add_prev_connection(self, node: Node) -> None:
+        if self.prev_connection is not None or node.next_connection is not None:
+            raise ValueError("Nodes already have connections!")
+
+        self.prev_connection = node
+        node.next_connection = self
+
+    def add_next_connection(self, node: Node) -> None:
+        if self.next_connection is not None or node.prev_connection is not None:
+            raise ValueError("Nodes already have connections!")
+
+        self.next_connection = node
+        node.prev_connection = self
 
     def remove_connection(self, node: Node) -> None:
-        self.connections.remove(node)
-        node.connections.remove(self)
+        if node == self.next_connection:
+            self.next_connection = None
+            node.prev_connection = None
+        elif node == self.prev_connection:
+            self.prev_connection = None
+            node.next_connection = None
+        else:
+            raise ValueError("Node is not connected to this node")
 
-    def set_connections(self, nodes: list[Node]) -> None:
-        self.connections = nodes
+    def reverse_connections(self) -> None:
+        """Reverses the order of the connections in place"""
+        self.next_connection, self.prev_connection = self.prev_connection, self.next_connection
+
+    @property
+    def connections(self) -> list[Node]:
+        return [self.prev_connection, self.next_connection]
 
     def __eq__(self, o: object) -> bool:
         if isinstance(o, Node):

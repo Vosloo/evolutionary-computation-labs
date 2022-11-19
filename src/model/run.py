@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from src.model import ADelta, DistanceMatrix, Node
+from src.model import Delta, DistanceMatrix, Node
 
 
 @dataclass
@@ -46,7 +46,7 @@ class Run:
         return self.cost + self.distance
 
     @staticmethod
-    def from_delta(current_run: Run, delta: ADelta) -> Run:
+    def from_delta(current_run: Run, delta: Delta) -> Run:
         delta.apply_nodes(current_run.nodes)
 
         node_id = current_run.nodes[0].id

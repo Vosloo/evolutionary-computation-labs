@@ -1,36 +1,50 @@
 from src.model import DistanceMatrix, Node
-from src.model.delta import ADelta
+from src.model.delta import Delta
 
 
-class DeltaInterNodes(ADelta):
+class DeltaInterNodes(Delta):
     def apply_nodes(self, original_sequence: list[Node]) -> list[Node]:
-        from_node, to_node = self.nodes
+        self.original_sequence = original_sequence
 
-        to_node.set_connections(from_node.connections)
-        from_ind = original_sequence.index(from_node)
-        original_sequence[from_ind] = to_node
+        old_node, new_node = self.nodes
+
+        self._replace_connections(old_node, new_node)
+
+        old_ind = original_sequence.index(old_node)
+        original_sequence[old_ind] = new_node
 
         return original_sequence
 
     @property
     def modified_cost(self) -> float:
-        from_node, to_node = self.nodes
-        return to_node.cost - from_node.cost
+        old_node, new_node = self.nodes
+        return new_node.cost - old_node.cost
 
     @property
     def modified_distance(self) -> float:
         return self._delta - self.modified_cost
 
     def _get_delta(self, distance_matrix: DistanceMatrix) -> float:
-        from_node, to_node = self.nodes
+        old_node, new_node = self.nodes
         delta = 0
 
-        connections = from_node.connections
+        connections = old_node.connections
         for conn in connections:
-            old_dist = distance_matrix.get_distance(from_node, conn)
-            new_dist = distance_matrix.get_distance(to_node, conn)
+            old_dist = distance_matrix.get_distance(old_node, conn)
+            new_dist = distance_matrix.get_distance(new_node, conn)
             delta += new_dist - old_dist  # lower is better
 
-        delta += to_node.cost - from_node.cost  # lower is better
+        delta += new_node.cost - old_node.cost  # lower is better
 
         return delta
+
+    def _replace_connections(self, nodeA: Node, nodeB: Node) -> None:
+        old_node_connections = nodeA.connections
+
+        for connection in old_node_connections:
+            nodeA.remove_connection(connection)
+
+            if connection.prev_connection is None:
+                connection.add_prev_connection(nodeB)
+            elif connection.next_connection is None:
+                connection.add_next_connection(nodeB)

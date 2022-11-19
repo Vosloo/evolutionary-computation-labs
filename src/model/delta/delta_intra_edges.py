@@ -1,24 +1,15 @@
 from src.model import DistanceMatrix, Node
-from src.model.delta import ADelta
+from src.model.delta import Delta
+from src.utils import linked_to_sequence
 
-
-class DeltaIntraEdges(ADelta):
+class DeltaIntraEdges(Delta):
     def apply_nodes(self, original_sequence: list[Node]) -> list[Node]:
+        self.original_sequence = original_sequence
+
         outerA, outerB = self.nodes
-        innerA, innerB = outerA.connections[1], outerB.connections[0]
+        self._replace_connections(outerA, outerB)
 
-        outerA.remove_connection(innerA)
-        outerB.remove_connection(innerB)
-
-        outerA.add_connection(innerB)
-        outerB.add_connection(innerA)
-
-        A_ind = original_sequence.index(outerA)
-        B_ind = original_sequence.index(outerB)
-
-        original_sequence[A_ind + 1 : B_ind] = original_sequence[B_ind - 1 : A_ind : -1]
-
-        return original_sequence
+        return linked_to_sequence(self.original_sequence[0])
 
     @property
     def modified_cost(self) -> float:
@@ -47,3 +38,44 @@ class DeltaIntraEdges(ADelta):
         ) - (distance_matrix.get_distance(*edgeA) + distance_matrix.get_distance(*edgeB))
 
         return delta
+
+    def _replace_connections(self, nodeA: Node, nodeB: Node) -> None:
+        outerA, outerB = nodeA, nodeB
+        innerA, innerB = nodeA.next_connection, nodeB.prev_connection
+
+        outerA.remove_connection(innerA)
+        outerB.remove_connection(innerB)
+
+        outerA_ind = None
+        innerA_ind = None
+        outerB_ind = None
+        innerB_ind = None
+        
+        for ind in range(len(self.original_sequence)):
+            curr_node = self.original_sequence[ind]
+            if curr_node == outerA:
+                outerA_ind = ind
+            elif curr_node == innerA:
+                innerA_ind = ind
+            elif curr_node == outerB:
+                outerB_ind = ind
+            elif curr_node == innerB:
+                innerB_ind = ind
+            
+            if outerA_ind and innerA_ind and outerB_ind and innerB_ind:
+                break
+
+        if innerA_ind < outerA_ind:
+            outerA, innerA = innerA, outerA
+            outerA_ind, innerA_ind = innerA_ind, outerA_ind
+        if outerB_ind < innerB_ind:
+            outerB, innerB = innerB, outerB
+            outerB_ind, innerB_ind = innerB_ind, outerB_ind
+
+        # TODO: Coś się spierdoliło tutaj
+
+        for node in self.original_sequence[outerA_ind + 1 : outerB_ind]:
+            node.reverse_connections()
+
+        outerA.add_next_connection(innerB)
+        outerB.add_prev_connection(innerA)

@@ -2,7 +2,7 @@ from itertools import combinations, product
 from random import shuffle
 
 from src.model import (
-    ADelta,
+    Delta,
     DeltaInterNodes,
     DeltaIntraEdges,
     DeltaIntraNodes,
@@ -27,8 +27,8 @@ def local_search(
     while True:
         neighbourhood_inter = _inter(current_run.nodes, nodes_set, distance_matrix)
         neighbourhood_intra = _intra(current_run.nodes, intra_type, distance_matrix)
-        neighbourhood: list[ADelta] = neighbourhood_inter + neighbourhood_intra
-        
+        neighbourhood: list[Delta] = neighbourhood_inter + neighbourhood_intra
+
         if search_type == "steepest":
             if (best_delta := min(neighbourhood)) < 0:
                 current_run = Run.from_delta(current_run, best_delta)
@@ -41,7 +41,6 @@ def local_search(
             for delta in neighbourhood:
                 if delta < 0:
                     current_run = Run.from_delta(current_run, delta)
-                else:
                     break
             else:
                 break
@@ -80,7 +79,6 @@ def _intra(
 def _edges_intra(
     original_sequence: list[Node], distance_matrix: DistanceMatrix
 ) -> list[DeltaIntraEdges]:
-    # all_edges = [(node, original_sequence[i + 1]) for i, node in all_edges]
     all_edges = [(node, original_sequence[i + 1]) for i, node in enumerate(original_sequence[:-1])]
     all_edges.append((original_sequence[-1], original_sequence[0]))
     edge_swaps = list(combinations(all_edges, 2))

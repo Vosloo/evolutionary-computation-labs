@@ -112,13 +112,12 @@ class TSPProblem:
         for i, (x, y, cost) in enumerate(zip(instance.x, instance.y, instance.cost)):
             curr_node = Node(i, x, y, cost)
             nodes.append(curr_node)
-            if i > 0:
-                prev_node = nodes[i - 1]
-                # CONNECTIONS ARE ADDED IN BOTH DIRECTIONS AND TO THE RIGHT!
-                prev_node.add_connection(curr_node)
+        #     if i > 0:
+        #         prev_node = nodes[i - 1]
+        #         curr_node.add_prev_connection(prev_node)
         
-        # CONNECT THE LAST NODE TO THE FIRST ONE (CIRCULAR)
-        nodes[0].add_connection(nodes[-1], to_left=True)
+        # # CONNECT THE LAST NODE TO THE FIRST ONE (CIRCULAR)
+        # nodes[-1].add_next_connection(nodes[0])
         return nodes
 
     def _grade_method(

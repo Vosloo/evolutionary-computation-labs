@@ -15,6 +15,17 @@ def get_edges(nodes: list[Node]) -> TYPE_EDGES:
 
     return edges
 
+def linked_to_sequence(starting_node: Node) -> list[Node]:
+    sequence = []
+    current_node = starting_node
+    
+    while True:
+        sequence.append(current_node)
+        current_node = current_node.next_connection
+        if current_node == starting_node:
+            break
+    
+    return sequence
 
 def nodes_to_sequence(nodes: list[Node]) -> list[Node]:
     sequence = []
@@ -33,8 +44,19 @@ def nodes_to_sequence(nodes: list[Node]) -> list[Node]:
                 continue
 
             stack.insert(0, connection)
-    return sequence
 
+    return sort_connections(sequence)
+
+
+def sort_connections(nodes: list[Node]) -> list[Node]:
+    for i in range(1, len(nodes)):
+        curr_node = nodes[i]
+        prev_node = nodes[i - 1]
+        curr_node.add_prev_connection(prev_node)
+
+    nodes[-1].add_next_connection(nodes[0])
+
+    return nodes
 
 if __name__ == "__main__":
     nodes: list[Node] = []

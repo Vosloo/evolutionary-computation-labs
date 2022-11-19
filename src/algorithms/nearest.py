@@ -1,4 +1,5 @@
 from src.model import DistanceMatrix, Node
+from src.utils import sort_connections
 
 
 def nearest(
@@ -15,4 +16,4 @@ def nearest(
 
         selected_nodes.append(min_node)
 
-    return selected_nodes
+    return sort_connections(selected_nodes)

@@ -1,5 +1,5 @@
 from src.model import DistanceMatrix, Node
-from src.utils import get_edges, nodes_to_sequence
+from src.utils import get_edges, linked_to_sequence
 
 import numpy as np
 
@@ -21,7 +21,7 @@ def greedy_regret(
         pivot_node = selected_nodes[-1]
         min_node = distance_matrix.get_nearest_node(pivot_node, set(nodes) - set(selected_nodes))
 
-        pivot_node.add_connection(min_node)
+        pivot_node.add_next_connection(min_node)
         selected_nodes.append(min_node)
 
     for _ in range(node_coverage - len(selected_nodes)):
@@ -54,9 +54,9 @@ def greedy_regret(
         if len(selected_nodes) > 2:
             anchor_1.remove_connection(anchor_2)
 
-        anchor_1.add_connection(min_node)
-        anchor_2.add_connection(min_node)
+        anchor_1.add_next_connection(min_node)
+        anchor_2.add_prev_connection(min_node)
 
         selected_nodes.append(min_node)
 
-    return nodes_to_sequence(selected_nodes)
+    return linked_to_sequence(selected_nodes[0])
