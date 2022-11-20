@@ -23,6 +23,8 @@ def greedy_regret(
 
         pivot_node.add_next_connection(min_node)
         selected_nodes.append(min_node)
+    
+    selected_nodes[-1].add_next_connection(selected_nodes[0])
 
     for _ in range(node_coverage - len(selected_nodes)):
         min_node = None
@@ -54,8 +56,12 @@ def greedy_regret(
         if len(selected_nodes) > 2:
             anchor_1.remove_connection(anchor_2)
 
-        anchor_1.add_next_connection(min_node)
-        anchor_2.add_prev_connection(min_node)
+        if anchor_1.prev_connection is None:
+            anchor_1.add_prev_connection(min_node)
+            anchor_2.add_next_connection(min_node)
+        else:
+            anchor_1.add_next_connection(min_node)
+            anchor_2.add_prev_connection(min_node)
 
         selected_nodes.append(min_node)
 

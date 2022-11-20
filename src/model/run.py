@@ -47,18 +47,19 @@ class Run:
 
     @staticmethod
     def from_delta(current_run: Run, delta: Delta) -> Run:
-        delta.apply_nodes(current_run.nodes)
+        modified_nodes = delta.apply_nodes(current_run.nodes)
 
         node_id = current_run.nodes[0].id
         mod_cost = delta.modified_cost
         mod_dist = delta.modified_distance
 
-        return current_run._modify_run(node_id, mod_cost, mod_dist)
+        return current_run._modify_run(node_id, mod_cost, mod_dist, modified_nodes)
 
-    def _modify_run(self, id: int, mod_cost: int, mod_dist: int) -> Run:
+    def _modify_run(self, id: int, mod_cost: int, mod_dist: int, modified_nodes: list[Node]) -> Run:
         self.id = id
         self.cost += mod_cost
         self.distance += mod_dist
+        self._selected_nodes = modified_nodes
 
         return self
 

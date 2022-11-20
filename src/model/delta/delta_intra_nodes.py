@@ -24,31 +24,61 @@ class DeltaIntraNodes(Delta):
 
     @property
     def modified_distance(self) -> float:
-        return self._delta
+        return self.delta
 
-    def _get_delta(self, distance_matrix: DistanceMatrix) -> float:
+    def _get_delta(self) -> float:
         nodeA, nodeB = self.nodes
         delta = 0
 
-        from_connections = nodeA.connections
-        to_connections = nodeB.connections
-        for i, from_conn in enumerate(from_connections):
-            to_conn = to_connections[i]
-            old_dist = distance_matrix.get_distance(
-                nodeA, from_conn
-            ) + distance_matrix.get_distance(nodeB, to_conn)
-            new_dist = distance_matrix.get_distance(nodeA, to_conn) + distance_matrix.get_distance(
-                nodeB, from_conn
-            )
+        nodeA_connections = nodeA.connections
+        nodeB_connections = nodeB.connections
+        
+
+        for nodeA_conn, nodeB_conn in zip(nodeA_connections, nodeB_connections):
+            old_dist = self.distance_matrix.get_distance(
+                nodeA, nodeA_conn
+            ) + self.distance_matrix.get_distance(nodeB, nodeB_conn)
+
+            if nodeA_conn != nodeB:
+                distA = self.distance_matrix.get_distance(nodeA_conn, nodeB)
+            else:
+                distA = self.distance_matrix.get_distance(nodeA, nodeB)
+
+            if nodeB_conn != nodeA:
+                distB = self.distance_matrix.get_distance(nodeB_conn, nodeA)
+            else:
+                distB = self.distance_matrix.get_distance(nodeB, nodeA)
+            
+            new_dist = distA + distB
+
             delta += new_dist - old_dist  # lower is better
 
+        return delta
+
     def _replace_connections(self, nodeA: Node, nodeB: Node) -> None:
-        nodeA_connections = nodeA.connections
-        nodeB_connections = nodeB.connections            
+        if nodeB in nodeA.connections:
+            ind = nodeA.connections.index(nodeB)
+            
+            nodeA_connections = nodeA.connections
+            nodeB_connections = nodeB.connections
 
-        for ind, nodeA_conn in enumerate(nodeA_connections):
-            nodeB_conn = nodeB_connections[ind]
+            nodeA.remove_connection(nodeA_connections[1 - ind])
+            nodeB.remove_connection(nodeB_connections[ind]) 
+            
+            nodeA.reverse_connections()
+            nodeB.reverse_connections()
+            
+            if ind == 0:
+                # Case when nodeA and nodeB are first and last nodes in the sequence
+                nodeA.add_prev_connection(nodeB_connections[ind])
+                nodeB.add_next_connection(nodeA_connections[1 - ind])
+            else:
+                nodeA.add_next_connection(nodeB_connections[ind])
+                nodeB.add_prev_connection(nodeA_connections[1 - ind])
 
+            return
+
+        for nodeA_conn, nodeB_conn in zip(nodeA.connections, nodeB.connections):
             nodeA.remove_connection(nodeA_conn)
             nodeB.remove_connection(nodeB_conn)
 

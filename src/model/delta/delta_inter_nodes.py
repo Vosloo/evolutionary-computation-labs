@@ -22,16 +22,19 @@ class DeltaInterNodes(Delta):
 
     @property
     def modified_distance(self) -> float:
-        return self._delta - self.modified_cost
+        return self.delta - self.modified_cost
 
-    def _get_delta(self, distance_matrix: DistanceMatrix) -> float:
+    def _get_delta(self) -> float:
         old_node, new_node = self.nodes
         delta = 0
 
         connections = old_node.connections
         for conn in connections:
-            old_dist = distance_matrix.get_distance(old_node, conn)
-            new_dist = distance_matrix.get_distance(new_node, conn)
+            if old_node is None or new_node is None or conn is None:
+                pass
+
+            old_dist = self.distance_matrix.get_distance(old_node, conn)
+            new_dist = self.distance_matrix.get_distance(new_node, conn)
             delta += new_dist - old_dist  # lower is better
 
         delta += new_node.cost - old_node.cost  # lower is better

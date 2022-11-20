@@ -1,5 +1,6 @@
 from itertools import combinations, product
-from random import shuffle
+
+import numpy as np
 
 from src.model import (
     Delta,
@@ -10,6 +11,7 @@ from src.model import (
     Node,
     Run,
 )
+from src.utils import get_edges
 
 
 def local_search(
@@ -20,11 +22,17 @@ def local_search(
     intra_type: str,
     **kwargs,
 ) -> list[Node]:
+    if initial_solution is None:
+        raise ValueError("Initial solution is None!")
+
     nodes_set = set(nodes)
 
     current_run = Run(0, initial_solution, distance_matrix)
 
     while True:
+        if current_run.score < 0:
+            raise ValueError("Initial solution is not valid!")
+
         neighbourhood_inter = _inter(current_run.nodes, nodes_set, distance_matrix)
         neighbourhood_intra = _intra(current_run.nodes, intra_type, distance_matrix)
         neighbourhood: list[Delta] = neighbourhood_inter + neighbourhood_intra
@@ -36,7 +44,7 @@ def local_search(
                 break
 
         elif search_type == "greedy":
-            shuffle(neighbourhood)
+            np.random.shuffle(neighbourhood)
 
             for delta in neighbourhood:
                 if delta < 0:
@@ -79,9 +87,8 @@ def _intra(
 def _edges_intra(
     original_sequence: list[Node], distance_matrix: DistanceMatrix
 ) -> list[DeltaIntraEdges]:
-    all_edges = [(node, original_sequence[i + 1]) for i, node in enumerate(original_sequence[:-1])]
-    all_edges.append((original_sequence[-1], original_sequence[0]))
-    edge_swaps = list(combinations(all_edges, 2))
+    all_edges = get_edges(original_sequence)
+    edge_swaps = combinations(all_edges, 2)
 
     neighbourhood = []
 
@@ -102,7 +109,7 @@ def _edges_intra(
 def _nodes_intra(
     original_sequence: list[Node], distance_matrix: DistanceMatrix
 ) -> list[DeltaIntraNodes]:
-    changes = set(combinations(original_sequence, 2))
+    changes = combinations(original_sequence, 2)
     neighbourhood = []
     for change in changes:
         from_node, to_node = change

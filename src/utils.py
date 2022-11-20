@@ -4,16 +4,13 @@ TYPE_EDGES = list[tuple[Node, Node]]
 
 
 def get_edges(nodes: list[Node]) -> TYPE_EDGES:
-    edges = []
-    visited_nodes = set()
-    for node in nodes:
-        for connection in node.connections:
-            if connection not in visited_nodes:
-                edges.append((node, connection))
+    if len(nodes) < 2:
+        raise ValueError("There must be at least 2 nodes to get edges")
 
-        visited_nodes.add(node)
+    if len(nodes) == 2:
+        return [(nodes[0], nodes[1])]
 
-    return edges
+    return [(curr_node, curr_node.next_connection) for curr_node in nodes]
 
 def linked_to_sequence(starting_node: Node) -> list[Node]:
     sequence = []
@@ -22,7 +19,7 @@ def linked_to_sequence(starting_node: Node) -> list[Node]:
     while True:
         sequence.append(current_node)
         current_node = current_node.next_connection
-        if current_node == starting_node:
+        if current_node == starting_node or current_node is None:
             break
     
     return sequence

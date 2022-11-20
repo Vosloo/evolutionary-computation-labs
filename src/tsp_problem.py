@@ -1,5 +1,4 @@
 from copy import deepcopy
-from random import sample
 from time import perf_counter
 
 from src.algorithms import Method, greedy_cycle, greedy_regret, local_search, nearest, random
@@ -112,12 +111,7 @@ class TSPProblem:
         for i, (x, y, cost) in enumerate(zip(instance.x, instance.y, instance.cost)):
             curr_node = Node(i, x, y, cost)
             nodes.append(curr_node)
-        #     if i > 0:
-        #         prev_node = nodes[i - 1]
-        #         curr_node.add_prev_connection(prev_node)
-        
-        # # CONNECT THE LAST NODE TO THE FIRST ONE (CIRCULAR)
-        # nodes[-1].add_next_connection(nodes[0])
+
         return nodes
 
     def _grade_method(
@@ -132,9 +126,9 @@ class TSPProblem:
             pivot_node = nodes_cp[pivot_ind]
 
             if params[method_name].get("use_heuristic", False) and self.heuristic_grade is not None:
-                initial_solution = self.heuristic_grade.best_run.nodes
+                initial_solution = deepcopy(self.heuristic_grade.best_run.nodes)
             elif self.random_grade is not None:
-                initial_solution = self.random_grade.best_run.nodes
+                initial_solution = deepcopy(self.random_grade.best_run.nodes)
             else:
                 initial_solution = None
 
@@ -177,7 +171,9 @@ class TSPProblem:
             elif method_name == Method.RANDOM:
                 self.random_grade = grade
 
-            print(f"\rFinished {method_name.name} method in {perf_counter() - start:.2f}s")
+            end = perf_counter()
+            grade.set_runtime(end - start)
+            print(f"\rFinished {method_name.name} method in {end - start:.2f}s")
             grades[method_name] = grade
 
         return grades

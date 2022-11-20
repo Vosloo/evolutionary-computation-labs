@@ -2,6 +2,7 @@ from src.model import DistanceMatrix, Node
 from src.model.delta import Delta
 from src.utils import linked_to_sequence
 
+
 class DeltaIntraEdges(Delta):
     def apply_nodes(self, original_sequence: list[Node]) -> list[Node]:
         self.original_sequence = original_sequence
@@ -17,9 +18,9 @@ class DeltaIntraEdges(Delta):
 
     @property
     def modified_distance(self) -> float:
-        return self._delta
+        return self.delta
 
-    def _get_delta(self, distance_matrix: DistanceMatrix) -> float:
+    def _get_delta(self) -> float:
         """
         Calculates the delta of the edge swap between the two nodes.
         The direction of the swap either from edgeA to edgeB or from edgeB to edgeA
@@ -33,9 +34,9 @@ class DeltaIntraEdges(Delta):
 
         # new distace - old distance
         delta = (
-            distance_matrix.get_distance(edgeA[0], edgeB[0])
-            + distance_matrix.get_distance(edgeA[1], edgeB[1])
-        ) - (distance_matrix.get_distance(*edgeA) + distance_matrix.get_distance(*edgeB))
+            self.distance_matrix.get_distance(edgeA[0], edgeB[0])
+            + self.distance_matrix.get_distance(edgeA[1], edgeB[1])
+        ) - (self.distance_matrix.get_distance(*edgeA) + self.distance_matrix.get_distance(*edgeB))
 
         return delta
 
@@ -50,7 +51,7 @@ class DeltaIntraEdges(Delta):
         innerA_ind = None
         outerB_ind = None
         innerB_ind = None
-        
+
         for ind in range(len(self.original_sequence)):
             curr_node = self.original_sequence[ind]
             if curr_node == outerA:
@@ -61,18 +62,14 @@ class DeltaIntraEdges(Delta):
                 outerB_ind = ind
             elif curr_node == innerB:
                 innerB_ind = ind
-            
+
             if outerA_ind and innerA_ind and outerB_ind and innerB_ind:
                 break
 
         if innerA_ind < outerA_ind:
-            outerA, innerA = innerA, outerA
-            outerA_ind, innerA_ind = innerA_ind, outerA_ind
+            outerA_ind = innerA_ind + 1
         if outerB_ind < innerB_ind:
-            outerB, innerB = innerB, outerB
-            outerB_ind, innerB_ind = innerB_ind, outerB_ind
-
-        # TODO: Coś się spierdoliło tutaj
+            outerB_ind = innerB_ind + 1
 
         for node in self.original_sequence[outerA_ind + 1 : outerB_ind]:
             node.reverse_connections()

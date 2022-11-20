@@ -12,6 +12,7 @@ class Grade:
         self.method_name = method_name
         self.best_run: Run = best_run
         self.runs = runs
+        self._runtime = None
 
         scores = [run.score for run in runs]
         self.min: float = min(scores)
@@ -31,3 +32,11 @@ class Grade:
             f"\n{'Max score:':<40}{self.max}"
             f"\n{'':=^80}\n"
         )
+
+    def set_runtime(self, runtime: float) -> None:
+        self._runtime = runtime
+
+    @property
+    def runtime(self) -> tuple[float, float]:
+        """Returns tuple of runtime and runtime per run (in seconds)."""
+        return self._runtime, self._runtime / len(self.runs)

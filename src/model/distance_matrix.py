@@ -46,8 +46,7 @@ class DistanceMatrix:
         return min_node
 
     def get_distance(self, node: Node, other_node: Node) -> int:
-        res = self.distance_matrix[node.id][other_node.id]
-        return res
+        return self.distance_matrix[node.id, other_node.id]
 
     def get_node_to_edge_distance(self, node: Node, edge: tuple[Node, Node], include_cost: bool = True) -> int:
         anchor_1, anchor_2 = edge
