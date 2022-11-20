@@ -95,7 +95,7 @@ class TSPProblem:
             selected_instances = {instance: self.instances[instance] for instance in instances}
 
         for instance_name, instance in selected_instances.items():
-            print(f"\nRunning {instance_name} instance")
+            # print(f"\nRunning {instance_name} instance")
             distance_matrix = DistanceMatrix(instance)
             nodes = self._get_nodes(instance)
             grades = self._grade_methods(nodes, distance_matrix, methods)
@@ -173,7 +173,7 @@ class TSPProblem:
 
             end = perf_counter()
             grade.set_runtime(end - start)
-            print(f"\rFinished {method_name.name} method in {end - start:.2f}s")
+            # print(f"\rFinished {method_name.name} method in {end - start:.2f}s")
             grades[method_name] = grade
 
         return grades
