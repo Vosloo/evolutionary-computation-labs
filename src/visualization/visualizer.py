@@ -10,6 +10,9 @@ sns.set_theme(style="darkgrid")
 
 
 class Visualizer:
+    def __init__(self, nodes: dict[str, list[Node]]) -> None:
+        self.instance_nodes: dict[str, list[Node]] = nodes
+
     def _hex_to_RGB(self, hex: str) -> list[int]:
         return [int(hex[i : i + 2], 16) for i in range(1, 6, 2)]
 
@@ -40,8 +43,13 @@ class Visualizer:
         return [gradient[node.cost - min_cost] for node in nodes]
 
     def visualise_solution(self, grade: Grade, instance_name: str, method_name: Method) -> None:
-        G = nx.Graph()
+        G_all = nx.Graph()
+        for node in self.instance_nodes[instance_name]:
+            G_all.add_node(node, pos=(node.x, node.y))
 
+        pos_all = nx.get_node_attributes(G_all, "pos")
+
+        G = nx.Graph()
         nodes = grade.best_run.nodes
 
         for node in nodes:
@@ -60,10 +68,14 @@ class Visualizer:
         # Normalize node sizes from 200 to 1000
         node_sizes = [node.cost for node in nodes]
         node_sizes = [
-            round(200 + (1000 - 200) * ((node_size - min(node_sizes)) / (max(node_sizes) - min(node_sizes))))
+            round(
+                200
+                + (1000 - 200) * ((node_size - min(node_sizes)) / (max(node_sizes) - min(node_sizes)))
+            )
             for node_size in node_sizes
         ]
 
+        nx.draw_networkx_nodes(G_all, pos_all, node_color="#c6c6c6", node_size=150)
         nx.draw_networkx_nodes(G, pos, node_color=node_colors, node_size=node_sizes)
         nx.draw_networkx_edges(G, pos, width=1.0, alpha=0.5)
         nx.draw_networkx_labels(G, pos, font_size=10, font_family="sans-serif")

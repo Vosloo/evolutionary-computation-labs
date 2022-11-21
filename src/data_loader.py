@@ -11,7 +11,7 @@ CSV_SEP = ";"
 
 class DataLoader:
     @staticmethod
-    def load_tsp_instances() -> dict[Instance]:
+    def load_tsp_instances() -> dict[str, Instance]:
         """Load the TSP instances from the data folder.
 
         Returns:
