@@ -39,4 +39,4 @@ class Grade:
     @property
     def runtime(self) -> tuple[float, float]:
         """Returns tuple of runtime and runtime per run (in seconds)."""
-        return self._runtime, self._runtime / len(self.runs)
+        return round(self._runtime, 4), round(self._runtime / len(self.runs), 4)

@@ -82,8 +82,8 @@ class TSPProblem:
             Method.LOCAL_SEARCH_GREEDY_EDGES_RANDOM: local_search,
             Method.LOCAL_SEARCH_GREEDY_EDGES_HEURISTIC: local_search,
         }
-        self.heuristic_grade: None | Grade = None
-        self.random_grade: None | Grade = None
+        self.heuristic_grade = {}
+        self.random_grade = {}
         print(f"Available methods: {[method.name for method in self.methods.keys()]}")
 
     def run(self, instances: list[str] = None, methods: list[Method] = None) -> TYPE_INSTANCE_GRADES:
@@ -98,7 +98,7 @@ class TSPProblem:
             # print(f"\nRunning {instance_name} instance")
             distance_matrix = DistanceMatrix(instance)
             nodes = self._get_nodes(instance)
-            grades = self._grade_methods(nodes, distance_matrix, methods)
+            grades = self._grade_methods(instance_name, nodes, distance_matrix, methods)
             instance_grades[instance_name] = grades
 
         return instance_grades
@@ -115,20 +115,28 @@ class TSPProblem:
         return nodes
 
     def _grade_method(
-        self, nodes: list[Node], method_name: Method, method: callable, distance_matrix: DistanceMatrix
+        self,
+        instance_name: str,
+        nodes: list[Node],
+        method_name: Method,
+        method: callable,
+        distance_matrix: DistanceMatrix,
     ) -> Grade:
         runs: list[Run] = []
         best_run: Run = None
 
         for pivot_ind in range(self.no_runs):
-            print(f"\r{pivot_ind + 1:3} / {self.no_runs:3}", end="")
+            # print(f"\r{pivot_ind + 1:3} / {self.no_runs:3}", end="")
             nodes_cp = deepcopy(nodes)
             pivot_node = nodes_cp[pivot_ind]
 
-            if params[method_name].get("use_heuristic", False) and self.heuristic_grade is not None:
-                initial_solution = deepcopy(self.heuristic_grade.best_run.nodes)
-            elif self.random_grade is not None:
-                initial_solution = deepcopy(self.random_grade.best_run.nodes)
+            if (
+                params[method_name].get("use_heuristic", False)
+                and self.heuristic_grade.get(instance_name) is not None
+            ):
+                initial_solution = deepcopy(self.heuristic_grade[instance_name].best_run.nodes)
+            elif self.random_grade.get(instance_name) is not None:
+                initial_solution = deepcopy(self.random_grade[instance_name].best_run.nodes)
             else:
                 initial_solution = None
 
@@ -153,7 +161,11 @@ class TSPProblem:
         return Grade(meth_name, best_run, runs)
 
     def _grade_methods(
-        self, nodes: list[Node], distance_matrix: DistanceMatrix, methods: list[Method] = None
+        self,
+        instance_name: str,
+        nodes: list[Node],
+        distance_matrix: DistanceMatrix,
+        methods: list[Method] = None,
     ) -> TYPE_METHOD_GRADES:
         grades: TYPE_METHOD_GRADES = {}
 
@@ -163,13 +175,13 @@ class TSPProblem:
             selected_methods = {method: self.methods[method] for method in methods}
 
         for method_name, method in selected_methods.items():
-            print(f"Running {method_name.name} method for {self.no_runs} runs")
+            # print(f"Running {method_name.name} method for {self.no_runs} runs")
             start = perf_counter()
-            grade = self._grade_method(nodes, method_name, method, distance_matrix)
+            grade = self._grade_method(instance_name, nodes, method_name, method, distance_matrix)
             if method_name == Method.GREEDY_REGRET_WEIGHTED:
-                self.heuristic_grade = grade
+                self.heuristic_grade[instance_name] = grade
             elif method_name == Method.RANDOM:
-                self.random_grade = grade
+                self.random_grade[instance_name] = grade
 
             end = perf_counter()
             grade.set_runtime(end - start)

@@ -33,7 +33,6 @@ class DeltaIntraNodes(Delta):
         nodeA_connections = nodeA.connections
         nodeB_connections = nodeB.connections
         
-
         for nodeA_conn, nodeB_conn in zip(nodeA_connections, nodeB_connections):
             old_dist = self.distance_matrix.get_distance(
                 nodeA, nodeA_conn
