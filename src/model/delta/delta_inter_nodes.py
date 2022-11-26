@@ -1,4 +1,4 @@
-from src.model import DistanceMatrix, Node
+from src.model import Node
 from src.model.delta import Delta
 
 

@@ -21,7 +21,7 @@ class Delta(ABC):
     def __lt__(self, other: Delta) -> bool:
         if isinstance(other, Delta):
             return self.delta < other.delta
-        
+
         return self.delta < other
 
     @abstractmethod

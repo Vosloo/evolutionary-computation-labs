@@ -6,9 +6,7 @@ from src.model import Run
 
 @dataclass
 class Grade:
-    def __init__(
-        self, method_name: str, best_run: Run, runs: list[Run]
-    ) -> None:
+    def __init__(self, method_name: str, best_run: Run, runs: list[Run]) -> None:
         self.method_name = method_name
         self.best_run: Run = best_run
         self.runs = runs

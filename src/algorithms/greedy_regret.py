@@ -23,7 +23,7 @@ def greedy_regret(
 
         pivot_node.add_next_connection(min_node)
         selected_nodes.append(min_node)
-    
+
     selected_nodes[-1].add_next_connection(selected_nodes[0])
 
     for _ in range(node_coverage - len(selected_nodes)):

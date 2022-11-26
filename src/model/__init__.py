@@ -4,7 +4,7 @@ __all__ = [
     "Instance",
     "Node",
     "Run",
-    "ADelta"
+    "Delta",
     "DeltaInterNodes",
     "DeltaIntraEdges",
     "DeltaIntraNodes",

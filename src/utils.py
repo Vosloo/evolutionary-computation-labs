@@ -12,17 +12,19 @@ def get_edges(nodes: list[Node]) -> TYPE_EDGES:
 
     return [(curr_node, curr_node.next_connection) for curr_node in nodes]
 
+
 def linked_to_sequence(starting_node: Node) -> list[Node]:
     sequence = []
     current_node = starting_node
-    
+
     while True:
         sequence.append(current_node)
         current_node = current_node.next_connection
         if current_node == starting_node or current_node is None:
             break
-    
+
     return sequence
+
 
 def nodes_to_sequence(nodes: list[Node]) -> list[Node]:
     sequence = []
@@ -55,11 +57,12 @@ def sort_connections(nodes: list[Node]) -> list[Node]:
 
     return nodes
 
+
 if __name__ == "__main__":
     nodes: list[Node] = []
     for i in range(1, 7):
         nodes.append(Node(i, 0, 0, 0))
-    
+
     for i in range(len(nodes) - 1):
         node = nodes[i]
 

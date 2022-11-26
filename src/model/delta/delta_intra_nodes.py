@@ -32,7 +32,7 @@ class DeltaIntraNodes(Delta):
 
         nodeA_connections = nodeA.connections
         nodeB_connections = nodeB.connections
-        
+
         for nodeA_conn, nodeB_conn in zip(nodeA_connections, nodeB_connections):
             old_dist = self.distance_matrix.get_distance(
                 nodeA, nodeA_conn
@@ -47,7 +47,7 @@ class DeltaIntraNodes(Delta):
                 distB = self.distance_matrix.get_distance(nodeB_conn, nodeA)
             else:
                 distB = self.distance_matrix.get_distance(nodeB, nodeA)
-            
+
             new_dist = distA + distB
 
             delta += new_dist - old_dist  # lower is better
@@ -57,16 +57,16 @@ class DeltaIntraNodes(Delta):
     def _replace_connections(self, nodeA: Node, nodeB: Node) -> None:
         if nodeB in nodeA.connections:
             ind = nodeA.connections.index(nodeB)
-            
+
             nodeA_connections = nodeA.connections
             nodeB_connections = nodeB.connections
 
             nodeA.remove_connection(nodeA_connections[1 - ind])
-            nodeB.remove_connection(nodeB_connections[ind]) 
-            
+            nodeB.remove_connection(nodeB_connections[ind])
+
             nodeA.reverse_connections()
             nodeB.reverse_connections()
-            
+
             if ind == 0:
                 # Case when nodeA and nodeB are first and last nodes in the sequence
                 nodeA.add_prev_connection(nodeB_connections[ind])

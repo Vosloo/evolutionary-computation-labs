@@ -12,7 +12,7 @@ class DistanceMatrix:
 
         Args:
             instance (Instance): Instance for which the distance matrix should be calculated.
-        
+
         Returns:
             np.ndarray: The distance matrix.
         """
@@ -45,10 +45,26 @@ class DistanceMatrix:
 
         return min_node
 
+    def get_n_nearest_nodes(self, pivot_node: Node, n: int) -> list[Node]:
+        """Get the n nearest nodes to the pivot node.
+
+        Args:
+            pivot_node (Node): The pivot node.
+            n (int): The number of nearest nodes to return.
+
+        Returns:
+            list[Node]: The n nearest nodes to the pivot node.
+        """
+        distances = self.distance_matrix[pivot_node.id]
+        sorted_indices = np.argsort(distances)
+        return [self.instance.nodes[i] for i in sorted_indices[1:n + 1]]
+
     def get_distance(self, node: Node, other_node: Node) -> int:
         return self.distance_matrix[node.id, other_node.id]
 
-    def get_node_to_edge_distance(self, node: Node, edge: tuple[Node, Node], include_cost: bool = True) -> int:
+    def get_node_to_edge_distance(
+        self, node: Node, edge: tuple[Node, Node], include_cost: bool = True
+    ) -> int:
         anchor_1, anchor_2 = edge
 
         distance = (
