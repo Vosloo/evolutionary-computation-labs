@@ -8,9 +8,9 @@ from src.model import DistanceMatrix, Node
 class Delta(ABC):
     def __init__(self, nodeA: Node, nodeB: Node, distance_matrix: DistanceMatrix) -> None:
         self.nodes = (nodeA, nodeB)
-        self.distance_matrix = distance_matrix
+        self.distance_matrix: DistanceMatrix = distance_matrix
         self._delta: float = None
-        self.original_sequence = None
+        self.original_sequence: list[Node] | None = None
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, Delta):

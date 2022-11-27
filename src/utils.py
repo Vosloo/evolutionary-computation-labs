@@ -57,7 +57,6 @@ def sort_connections(nodes: list[Node]) -> list[Node]:
 
     return nodes
 
-
 if __name__ == "__main__":
     nodes: list[Node] = []
     for i in range(1, 7):

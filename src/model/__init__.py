@@ -8,6 +8,8 @@ __all__ = [
     "DeltaInterNodes",
     "DeltaIntraEdges",
     "DeltaIntraNodes",
+    "DeltaCandidateNodes",
+    "DeltaCandidateEdges",
 ]
 
 

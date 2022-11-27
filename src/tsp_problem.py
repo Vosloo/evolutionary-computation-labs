@@ -1,7 +1,15 @@
 from copy import deepcopy
 from time import perf_counter
 
-from src.algorithms import Method, greedy_cycle, greedy_regret, local_search, nearest, random
+from src.algorithms import (
+    Method,
+    greedy_cycle,
+    greedy_regret,
+    local_search,
+    local_search_candidates,
+    nearest,
+    random,
+)
 from src.data_loader import DataLoader
 from src.model import DistanceMatrix, Grade, Instance, Node, Run
 
@@ -59,6 +67,14 @@ params = {
         "intra_type": "edges",
         "use_heuristic": True,
     },
+    Method.LOCAL_SEARCH_CANDIDATES_RANDOM: {
+        "no_candidates": 10,
+        "use_heuristic": False,
+    },
+    Method.LOCAL_SEARCH_CANDIDATES_HEURISTIC: {
+        "no_candidates": 10,
+        "use_heuristic": True,
+    },
 }
 
 
@@ -81,6 +97,8 @@ class TSPProblem:
             Method.LOCAL_SEARCH_GREEDY_NODES_HEURISTIC: local_search,
             Method.LOCAL_SEARCH_GREEDY_EDGES_RANDOM: local_search,
             Method.LOCAL_SEARCH_GREEDY_EDGES_HEURISTIC: local_search,
+            Method.LOCAL_SEARCH_CANDIDATES_RANDOM: local_search_candidates,
+            Method.LOCAL_SEARCH_CANDIDATES_HEURISTIC: local_search_candidates,
         }
         self.heuristic_grade = {}
         self.random_grade = {}
@@ -95,7 +113,7 @@ class TSPProblem:
             selected_instances = {instance: self.instances[instance] for instance in instances}
 
         for instance_name, instance in selected_instances.items():
-            # print(f"\nRunning {instance_name} instance")
+            print(f"\nRunning {instance_name} instance")
             distance_matrix = DistanceMatrix(instance)
             nodes = self._get_nodes(instance)
             grades = self._grade_methods(instance_name, nodes, distance_matrix, methods)
@@ -126,7 +144,7 @@ class TSPProblem:
         best_run: Run = None
 
         for pivot_ind in range(self.no_runs):
-            # print(f"\r{pivot_ind + 1:3} / {self.no_runs:3}", end="")
+            print(f"\r{pivot_ind + 1:3} / {self.no_runs:3}", end="")
             nodes_cp = deepcopy(nodes)
             pivot_node = nodes_cp[pivot_ind]
 
@@ -175,7 +193,7 @@ class TSPProblem:
             selected_methods = {method: self.methods[method] for method in methods}
 
         for method_name, method in selected_methods.items():
-            # print(f"Running {method_name.name} method for {self.no_runs} runs")
+            print(f"Running {method_name.name} method for {self.no_runs} runs")
             start = perf_counter()
             grade = self._grade_method(instance_name, nodes, method_name, method, distance_matrix)
             if method_name == Method.GREEDY_REGRET_WEIGHTED:
@@ -185,7 +203,7 @@ class TSPProblem:
 
             end = perf_counter()
             grade.set_runtime(end - start)
-            # print(f"\rFinished {method_name.name} method in {end - start:.2f}s")
+            print(f"\rFinished {method_name.name} method in {end - start:.2f}s")
             grades[method_name] = grade
 
         return grades

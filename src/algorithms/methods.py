@@ -16,3 +16,5 @@ class Method(Enum):
     LOCAL_SEARCH_GREEDY_NODES_HEURISTIC = "local_search_greedy_nodes_heuristic"
     LOCAL_SEARCH_GREEDY_EDGES_RANDOM = "local_search_greedy_edges_random"
     LOCAL_SEARCH_GREEDY_EDGES_HEURISTIC = "local_search_greedy_edges_heuristic"
+    LOCAL_SEARCH_CANDIDATES_RANDOM = "local_search_candidates_random"
+    LOCAL_SEARCH_CANDIDATES_HEURISTIC = "local_search_candidates_heuristic"
