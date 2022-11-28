@@ -12,6 +12,8 @@ class Delta(ABC):
         self._delta: float = None
         self.original_sequence: list[Node] | None = None
 
+        self._applied_to: list[Node] | None = None
+
     def __eq__(self, other: object) -> bool:
         if isinstance(other, Delta):
             return self.delta == other.delta
@@ -47,6 +49,14 @@ class Delta(ABC):
             self._delta = self._get_delta()
 
         return self._delta
+
+    @property
+    def applied_to_nodes(self) -> list[Node] | None:
+        """
+        Returns the nodes with the delta applied to them in the order:
+        outerA, innerA, innerB, outerB
+        """
+        return self._applied_to
 
     @abstractmethod
     def _get_delta(self) -> float:

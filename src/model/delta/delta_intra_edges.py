@@ -1,9 +1,13 @@
 from src.model import DistanceMatrix, Node
 from src.model.delta import Delta
-from src.utils import linked_to_sequence
+from src.utils import linked_to_sequence, find_nodes_in_sequence
 
 
 class DeltaIntraEdges(Delta):
+    def __init__(self, nodeA: Node, nodeB: Node, distance_matrix: DistanceMatrix) -> None:
+        super().__init__(nodeA, nodeB, distance_matrix)
+        self._applied_to = [nodeA, nodeA.next_connection, nodeB.prev_connection, nodeB]
+
     def apply_nodes(self, original_sequence: list[Node]) -> list[Node]:
         self.original_sequence = original_sequence
 
@@ -20,6 +24,14 @@ class DeltaIntraEdges(Delta):
     def modified_distance(self) -> float:
         return self.delta
 
+    @property
+    def applied_to_nodes(self) -> list[Node]:
+        """
+        Returns the nodes with the delta applied to them in the order:
+        outerA, innerA, innerB, outerB
+        """
+        return self._applied_to
+
     def _get_delta(self) -> float:
         """
         Calculates the delta of the edge swap between the two nodes.
@@ -29,14 +41,16 @@ class DeltaIntraEdges(Delta):
         Edges: (1, 2) and (6, 7) give the same delta as (6, 7) and (1, 2)
         """
         outerA, outerB = self.nodes
-
-        edgeA, edgeB = (outerA, outerA.connections[1]), (outerB.connections[0], outerB)
+        innerA, innerB = outerA.next_connection, outerB.prev_connection
 
         # new distace - old distance
         delta = (
-            self.distance_matrix.get_distance(edgeA[0], edgeB[0])
-            + self.distance_matrix.get_distance(edgeA[1], edgeB[1])
-        ) - (self.distance_matrix.get_distance(*edgeA) + self.distance_matrix.get_distance(*edgeB))
+            self.distance_matrix.get_distance(outerA, innerB)
+            + self.distance_matrix.get_distance(innerA, outerB)
+        ) - (
+            self.distance_matrix.get_distance(outerA, innerA)
+            + self.distance_matrix.get_distance(outerB, innerB)
+        )
 
         return delta
 
@@ -47,31 +61,23 @@ class DeltaIntraEdges(Delta):
         outerA.remove_connection(innerA)
         outerB.remove_connection(innerB)
 
-        outerA_ind = None
-        innerA_ind = None
-        outerB_ind = None
-        innerB_ind = None
-
-        for ind in range(len(self.original_sequence)):
-            curr_node = self.original_sequence[ind]
-            if curr_node == outerA:
-                outerA_ind = ind
-            elif curr_node == innerA:
-                innerA_ind = ind
-            elif curr_node == outerB:
-                outerB_ind = ind
-            elif curr_node == innerB:
-                innerB_ind = ind
-
-            if outerA_ind and innerA_ind and outerB_ind and innerB_ind:
-                break
+        outerA_ind, innerA_ind, outerB_ind, innerB_ind = find_nodes_in_sequence(
+            [outerA, innerA, outerB, innerB], self.original_sequence
+        )
 
         if innerA_ind < outerA_ind:
             outerA_ind = innerA_ind + 1
         if outerB_ind < innerB_ind:
             outerB_ind = innerB_ind + 1
 
-        for node in self.original_sequence[outerA_ind + 1 : outerB_ind]:
+        if outerA_ind < outerB_ind:
+            start_ind = outerA_ind + 1
+            end_ind = outerB_ind
+        else:
+            start_ind = outerB_ind + 1
+            end_ind = outerA_ind
+
+        for node in self.original_sequence[start_ind:end_ind]:
             node.reverse_connections()
 
         outerA.add_next_connection(innerB)

@@ -1,6 +1,6 @@
 from src.model import DistanceMatrix, Node
 from src.model.delta import Delta
-from src.utils import linked_to_sequence
+from src.utils import linked_to_sequence, find_nodes_in_sequence
 
 
 class DeltaCandidateEdges(Delta):
@@ -12,12 +12,11 @@ class DeltaCandidateEdges(Delta):
 
     def apply_nodes(self, original_sequence: list[Node]) -> list[Node]:
         self.original_sequence = original_sequence
-        
+
         nodeA, nodeB = self.nodes
         self._replace_connections(nodeA, nodeB)
 
         return linked_to_sequence(self.original_sequence[0])
-
 
     @property
     def modified_cost(self) -> float:
@@ -29,7 +28,7 @@ class DeltaCandidateEdges(Delta):
 
     def _get_delta(self) -> float:
         nodeA, nodeB = self.nodes
-        
+
         if self.is_next:
             nodeAconn = nodeA.next_connection
             nodeBconn = nodeB.next_connection
@@ -49,22 +48,12 @@ class DeltaCandidateEdges(Delta):
         return delta
 
     def _replace_connections(self, nodeA: Node, nodeB: Node) -> None:
-        nodeA_ind = None
-        nodeB_ind = None
-        
-        for ind in range(len(self.original_sequence)):
-            curr_node = self.original_sequence[ind]
-            if curr_node == nodeA:
-                nodeA_ind = ind
-            elif curr_node == nodeB:
-                nodeB_ind = ind
-            if nodeA_ind and nodeB_ind:
-                break
-        
+        nodeA_ind, nodeB_ind = find_nodes_in_sequence([nodeA, nodeB], self.original_sequence)
+
         if nodeA_ind > nodeB_ind:
             nodeA, nodeB = nodeB, nodeA
             nodeA_ind, nodeB_ind = nodeB_ind, nodeA_ind
-        
+
         # node edge connection index
         conn_ind = 1 if self.is_next else 0
 
@@ -74,8 +63,11 @@ class DeltaCandidateEdges(Delta):
         nodeA.remove_connection(nodeAconn)
         nodeB.remove_connection(nodeBconn)
 
-        for node in self.original_sequence[:nodeA_ind + conn_ind] + self.original_sequence[nodeB_ind + conn_ind:]:
-                node.reverse_connections()
+        for node in (
+            self.original_sequence[: nodeA_ind + conn_ind]
+            + self.original_sequence[nodeB_ind + conn_ind :]
+        ):
+            node.reverse_connections()
 
         nodeA.add_prev_connection(nodeB)
         nodeAconn.add_prev_connection(nodeBconn)

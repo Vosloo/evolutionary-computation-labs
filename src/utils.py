@@ -57,14 +57,17 @@ def sort_connections(nodes: list[Node]) -> list[Node]:
 
     return nodes
 
-if __name__ == "__main__":
-    nodes: list[Node] = []
-    for i in range(1, 7):
-        nodes.append(Node(i, 0, 0, 0))
 
-    for i in range(len(nodes) - 1):
-        node = nodes[i]
+def find_nodes_in_sequence(nodes: list[Node], sequence: list[Node]) -> list[int | None]:
+    node_idx = [None] * len(nodes)
 
-        node.add_connection(nodes[i + 1])
+    for i, curr_node in enumerate(sequence):
+        for j, node in enumerate(nodes):
+            if curr_node == node:
+                node_idx[j] = i
+                break
 
-    print(nodes_to_sequence(nodes))
+        if all(node_idx):
+            break
+
+    return node_idx

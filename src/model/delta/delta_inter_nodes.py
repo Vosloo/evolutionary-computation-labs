@@ -1,8 +1,19 @@
-from src.model import Node
+from src.model import Node, DistanceMatrix
 from src.model.delta import Delta
 
 
 class DeltaInterNodes(Delta):
+    def __init__(self, nodeA: Node, nodeB: Node, distance_matrix: DistanceMatrix) -> None:
+        super().__init__(nodeA, nodeB, distance_matrix)
+        self._applied_to: list[Node] = [
+            nodeA.prev_connection,
+            nodeA,
+            nodeA.next_connection,
+            nodeB.prev_connection,
+            nodeB,
+            nodeB.next_connection,
+        ]
+
     def apply_nodes(self, original_sequence: list[Node]) -> list[Node]:
         self.original_sequence = original_sequence
 
@@ -23,6 +34,15 @@ class DeltaInterNodes(Delta):
     @property
     def modified_distance(self) -> float:
         return self.delta - self.modified_cost
+
+    @property
+    def applied_to_nodes(self) -> list[Node]:
+        """
+        Returns the nodes with the delta applied to them in the order:
+
+        nodeA_prev, nodeA, innerA, innerB, nodeB, nodeB_next
+        """
+        return self._applied_to
 
     def _get_delta(self) -> float:
         old_node, new_node = self.nodes

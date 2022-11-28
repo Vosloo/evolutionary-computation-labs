@@ -7,6 +7,7 @@ from src.algorithms import (
     greedy_regret,
     local_search,
     local_search_candidates,
+    local_search_moves,
     nearest,
     random,
 )
@@ -75,6 +76,9 @@ params = {
         "no_candidates": 10,
         "use_heuristic": True,
     },
+    Method.LOCAL_SEARCH_MOVES_RANDOM: {
+        "use_heuristic": False,
+    },
 }
 
 
@@ -99,6 +103,7 @@ class TSPProblem:
             Method.LOCAL_SEARCH_GREEDY_EDGES_HEURISTIC: local_search,
             Method.LOCAL_SEARCH_CANDIDATES_RANDOM: local_search_candidates,
             Method.LOCAL_SEARCH_CANDIDATES_HEURISTIC: local_search_candidates,
+            Method.LOCAL_SEARCH_MOVES_RANDOM: local_search_moves,
         }
         self.heuristic_grade = {}
         self.random_grade = {}
