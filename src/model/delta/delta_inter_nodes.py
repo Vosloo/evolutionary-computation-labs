@@ -63,6 +63,8 @@ class DeltaInterNodes(Delta):
 
     def _replace_connections(self, nodeA: Node, nodeB: Node) -> None:
         old_node_connections = nodeA.connections
+        if old_node_connections == [None, None]:
+            raise ValueError("Node has no connections!")
 
         for connection in old_node_connections:
             nodeA.remove_connection(connection)

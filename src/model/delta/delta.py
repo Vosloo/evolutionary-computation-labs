@@ -1,12 +1,14 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from uuid import uuid4
 
 from src.model import DistanceMatrix, Node
 
 
 class Delta(ABC):
     def __init__(self, nodeA: Node, nodeB: Node, distance_matrix: DistanceMatrix) -> None:
+        self._id = uuid4()
         self.nodes = (nodeA, nodeB)
         self.distance_matrix: DistanceMatrix = distance_matrix
         self._delta: float = None
@@ -25,6 +27,9 @@ class Delta(ABC):
             return self.delta < other.delta
 
         return self.delta < other
+
+    def __hash__(self) -> int:
+        return hash(self._id)
 
     @abstractmethod
     def apply_nodes(self, original_sequence: list[Node]) -> None:

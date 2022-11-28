@@ -24,6 +24,7 @@ def local_search_moves(
     nodes_set = set(nodes)
 
     move_list = _get_move_list(current_run.nodes, nodes_set, distance_matrix)
+    counter = 0
     while True:
         if current_run.score < 0:
             raise ValueError("Current solution is not valid!")
@@ -39,10 +40,11 @@ def local_search_moves(
 
             # Add new moves to move_list
             move_list += _get_updated_move_list(
-                move, move_list, current_sequence, nodes_set, distance_matrix
+                move, current_sequence, nodes_set, distance_matrix, counter
             )
 
             current_run = Run.from_delta(current_run, move)
+            counter += 1
             
             # Remove used move
             to_remove.add(move)
@@ -168,6 +170,7 @@ def _get_updated_move_list(
     current_sequence: set[Node],
     nodes: set[Node],
     distance_matrix: DistanceMatrix,
+    counter: int,
 ) -> list[Delta]:
     # Create all combinations for newly added node with all nodes not in the sequence
     # and
@@ -183,7 +186,7 @@ def _get_updated_move_list(
         inter_delta.extend(
             [
                 DeltaInterNodes(*nodes, distance_matrix)
-                for nodes in product([out_node], current_sequence - {out_node})
+                for nodes in product(current_sequence - {out_node}, [out_node])
             ]
         )
         inter_delta.extend(
@@ -192,6 +195,9 @@ def _get_updated_move_list(
                 for nodes in product([in_node], outside_sequence - {in_node})
             ]
         )
+
+        if out_node.connections == [None, None]:
+            out_node, in_node = in_node, out_node
 
         outerA_1, outerA_2 = out_node.prev_connection, in_node
         for node in current_sequence:
