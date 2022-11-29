@@ -21,6 +21,7 @@ def local_search_moves(
         raise ValueError("Initial solution is None!")
 
     current_run = Run(0, initial_solution, distance_matrix)
+    current_sequence = set(current_run.nodes)
     nodes_set = set(nodes)
 
     move_list = _get_move_list(current_run.nodes, nodes_set, distance_matrix)
@@ -29,23 +30,27 @@ def local_search_moves(
         if current_run.score < 0:
             raise ValueError("Current solution is not valid!")
 
-        current_sequence = set(current_run.nodes)
         to_remove = set()
         for move in move_list:
             res = validate_move(move, current_sequence)
             if res == MoveAction.KEEP:
                 continue
+
             elif res == MoveAction.REMOVE:
                 to_remove.add(move)
+                continue
+
+            # Current run needs to be updated before updating move list
+            current_run = Run.from_delta(current_run, move)
+            current_sequence = set(current_run.nodes)
 
             # Add new moves to move_list
             move_list += _get_updated_move_list(
                 move, current_sequence, nodes_set, distance_matrix, counter
             )
 
-            current_run = Run.from_delta(current_run, move)
             counter += 1
-            
+
             # Remove used move
             to_remove.add(move)
 
@@ -71,10 +76,10 @@ def _filter_sort_move_list(move_list: list[Delta], to_remove: set | None = None)
 def _get_move_list(
     original_sequence: list[Node], nodes: set[Node], distance_matrix: DistanceMatrix
 ) -> list[Delta]:
-    inter_moves = _inter(original_sequence, nodes, distance_matrix)
+    # inter_moves = _inter(original_sequence, nodes, distance_matrix)
     intra_moves = _intra(original_sequence, distance_matrix)
 
-    move_list: list[Delta] = inter_moves + intra_moves
+    move_list: list[Delta] = intra_moves # inter_moves + intra_moves
     move_list = _filter_sort_move_list(move_list)
 
     return move_list
@@ -127,13 +132,13 @@ def _is_inter_nodes_move_valid(move: DeltaInterNodes, current_sequence: set[Node
     # Check if nodeA is still in the sequence and still has same neighbours
     # and
     # Check if nodeB is still not in the sequence
-    nodeA_prev, nodeA, innerA, innerB, nodeB, nodeB_next = move.applied_to_nodes
+    nodeA_prev, nodeA, nodeA_next, nodeB = move.applied_to_nodes
 
     is_valid = (
         nodeA in current_sequence
         and nodeB not in current_sequence
         and nodeA.prev_connection == nodeA_prev
-        and nodeA.next_connection == innerA
+        and nodeA.next_connection == nodeA_next
     )
     if is_valid:
         return MoveAction.USE
@@ -181,33 +186,39 @@ def _get_updated_move_list(
     if isinstance(current_move, DeltaInterNodes):
         outside_sequence = nodes - current_sequence
 
-        # node going out of the sequence and node coming into the sequence
-        out_node, in_node = current_move.nodes
+        # old_intra_node - new_outer_node (no connections)
+        # old_outer_node - new_intra_node (has connections)
+        # AFTER APPLY!
+        old_intra_node, old_outer_node = current_move.nodes
+        # old_intra_node.connections = None, None
+        # old_outer_node.connections = 2, 4
+        #
+        # current_sequence contains old_outer_node
+        # outside_sequence contains old_intra_node
         inter_delta.extend(
             [
-                DeltaInterNodes(*nodes, distance_matrix)
-                for nodes in product(current_sequence - {out_node}, [out_node])
+                DeltaInterNodes(intra_node, outer_node, distance_matrix)
+                for intra_node, outer_node in product(current_sequence, [old_intra_node])
             ]
         )
         inter_delta.extend(
             [
-                DeltaInterNodes(*nodes, distance_matrix)
-                for nodes in product([in_node], outside_sequence - {in_node})
+                DeltaInterNodes(inter_node, outer_node, distance_matrix)
+                for inter_node, outer_node in product([old_outer_node], outside_sequence)
             ]
         )
 
-        if out_node.connections == [None, None]:
-            out_node, in_node = in_node, out_node
-
-        outerA_1, outerA_2 = out_node.prev_connection, in_node
+        outerA_1, outerA_2 = old_outer_node.prev_connection, old_outer_node
         for node in current_sequence:
-            if node in (out_node, outerA_2):
+            if node == outerA_2:
                 continue
 
-            if outerA_1 != node:
+            # Case for outerA_1:
+            if node not in (outerA_2, outerA_2.next_connection):
                 intra_delta.append(DeltaIntraEdges(outerA_1, node, distance_matrix))
 
-            if out_node.next_connection != node:
+            # Case for outerA_2:
+            if node not in (outerA_2.next_connection, outerA_2.next_connection.next_connection):
                 intra_delta.append(DeltaIntraEdges(outerA_2, node, distance_matrix))
 
     # New delta edges are created by BOTH DeltaInterNodes and DeltaIntraEdges

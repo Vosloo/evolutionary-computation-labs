@@ -9,9 +9,7 @@ class DeltaInterNodes(Delta):
             nodeA.prev_connection,
             nodeA,
             nodeA.next_connection,
-            nodeB.prev_connection,
             nodeB,
-            nodeB.next_connection,
         ]
 
     def apply_nodes(self, original_sequence: list[Node]) -> list[Node]:
@@ -40,7 +38,7 @@ class DeltaInterNodes(Delta):
         """
         Returns the nodes with the delta applied to them in the order:
 
-        nodeA_prev, nodeA, innerA, innerB, nodeB, nodeB_next
+        nodeA_prev, nodeA, nodeA_next, nodeB
         """
         return self._applied_to
 

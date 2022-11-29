@@ -65,20 +65,37 @@ class DeltaIntraEdges(Delta):
             [outerA, innerA, outerB, innerB], self.original_sequence
         )
 
+        # Looping situation in the list
         if innerA_ind < outerA_ind:
             outerA_ind = innerA_ind + 1
         if outerB_ind < innerB_ind:
             outerB_ind = innerB_ind + 1
 
+        # Good placement (A -> B) => OuterA, InnerA then InnerB, OuterB
         if outerA_ind < outerB_ind:
-            start_ind = outerA_ind + 1
+            start_ind = innerA_ind
             end_ind = outerB_ind
-        else:
-            start_ind = outerB_ind + 1
-            end_ind = outerA_ind
+            outers_reversed = False
 
-        for node in self.original_sequence[start_ind:end_ind]:
-            node.reverse_connections()
+        # Bad placement (B -> A) => InnerB, OuterB then OuterA, InnerA
+        else:
+            start_ind = innerA_ind
+            end_ind = outerB_ind
+            outers_reversed = True
+
+        if not outers_reversed:
+            for node in self.original_sequence[start_ind:end_ind]:
+                node.reverse_connections()
+        else:
+            for node in self.original_sequence[:end_ind] + self.original_sequence[start_ind:]:
+                node.reverse_connections()
+
+        # 1 2 3 4 5 6 7
+        # outerA = 5
+        # outerB = 2
+        # 5 6 7 1 2 3 4
 
         outerA.add_next_connection(innerB)
         outerB.add_prev_connection(innerA)
+
+        pass
