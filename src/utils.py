@@ -67,7 +67,9 @@ def find_nodes_in_sequence(nodes: list[Node], sequence: list[Node]) -> list[int 
                 node_idx[j] = i
                 break
 
-        if all(node_idx):
+        if all([ind is not None for ind in node_idx]):
             break
+    else:
+        raise ValueError("Not all indices were found!")
 
     return node_idx

@@ -76,10 +76,10 @@ def _filter_sort_move_list(move_list: list[Delta], to_remove: set | None = None)
 def _get_move_list(
     original_sequence: list[Node], nodes: set[Node], distance_matrix: DistanceMatrix
 ) -> list[Delta]:
-    # inter_moves = _inter(original_sequence, nodes, distance_matrix)
-    intra_moves = _intra(original_sequence, distance_matrix)
+    inter_moves = _inter(original_sequence, nodes, distance_matrix)
+    # intra_moves = _intra(original_sequence, distance_matrix)
 
-    move_list: list[Delta] = intra_moves # inter_moves + intra_moves
+    move_list: list[Delta] = inter_moves # inter_moves + intra_moves
     move_list = _filter_sort_move_list(move_list)
 
     return move_list
@@ -210,15 +210,12 @@ def _get_updated_move_list(
 
         outerA_1, outerA_2 = old_outer_node.prev_connection, old_outer_node
         for node in current_sequence:
-            if node == outerA_2:
-                continue
-
             # Case for outerA_1:
-            if node not in (outerA_2, outerA_2.next_connection):
+            if node not in (outerA_1, outerA_1.next_connection, outerA_1.next_connection.next_connection):
                 intra_delta.append(DeltaIntraEdges(outerA_1, node, distance_matrix))
 
             # Case for outerA_2:
-            if node not in (outerA_2.next_connection, outerA_2.next_connection.next_connection):
+            if node not in (outerA_2, outerA_2.next_connection, outerA_2.next_connection.next_connection):
                 intra_delta.append(DeltaIntraEdges(outerA_2, node, distance_matrix))
 
     # New delta edges are created by BOTH DeltaInterNodes and DeltaIntraEdges
@@ -237,7 +234,10 @@ def _get_updated_move_list(
             # outerA always as A
             # outerB always as B
 
+            # TODO: THE FOLLOWING IS NOT TRUE!
             # We work on old configuration - so we need to check whether outerA is connected to node:
+            # TODO: WE WORK ON NEW CONFIGURATION. VERIFY IT. THE PROBLEM IS SELECTION OF EDGE WHERE:
+            # TODO: OUTERA == OUTERB
             # - outerA is connected to node (and create connection for outerB)
             # - outerB is connected to node (and create connection for outerA)
             if (
