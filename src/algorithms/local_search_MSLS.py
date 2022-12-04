@@ -1,4 +1,4 @@
-from src.algorithms import local_search_moves, random
+from src.algorithms import local_search_moves, random_sequence
 from src.model import DistanceMatrix, Node, Run
 
 
@@ -23,7 +23,7 @@ def local_search_MSLS(
     nodes_runs: list[list[Node]] = []
     for _ in range(no_iterations):
         print(f"\r{_ + 1:3} / {no_iterations:3}", end="")
-        initial_solution = random(nodes, **kwargs)
+        initial_solution = random_sequence(nodes, **kwargs)
         nodes_runs.append(
             local_search_moves(
                 initial_solution=initial_solution,

@@ -7,10 +7,11 @@ from src.algorithms import (
     greedy_regret,
     local_search,
     local_search_candidates,
+    local_search_iterative,
     local_search_moves,
     local_search_MSLS,
     nearest,
-    random,
+    random_sequence,
 )
 from src.data_loader import DataLoader
 from src.model import DistanceMatrix, Grade, Instance, Node, Run
@@ -19,7 +20,7 @@ TYPE_METHOD_GRADES = dict[str, Grade]
 TYPE_INSTANCE_GRADES = dict[str, TYPE_METHOD_GRADES]
 
 params = {
-    Method.RANDOM: {},
+    Method.RANDOM_SEQUENCE: {},
     Method.NEAREST: {},
     Method.GREEDY_CYCLE: {},
     Method.GREEDY_REGRET: {
@@ -83,6 +84,10 @@ params = {
     Method.LOCAL_SEARCH_MSLS: {
         "no_iterations": 200,
     },
+    Method.LOCAL_SEARCH_ITERATIVE: {
+        "no_candidates": 10,
+        "max_runtime": 10,
+    },
 }
 
 
@@ -92,7 +97,7 @@ class TSPProblem:
 
         self.no_runs = no_runs
         self.methods = {
-            Method.RANDOM: random,
+            Method.RANDOM_SEQUENCE: random_sequence,
             Method.NEAREST: nearest,
             Method.GREEDY_CYCLE: greedy_cycle,
             Method.GREEDY_REGRET: greedy_regret,
@@ -109,6 +114,7 @@ class TSPProblem:
             Method.LOCAL_SEARCH_CANDIDATES_HEURISTIC: local_search_candidates,
             Method.LOCAL_SEARCH_MOVES_RANDOM: local_search_moves,
             Method.LOCAL_SEARCH_MSLS: local_search_MSLS,
+            Method.LOCAL_SEARCH_ITERATIVE: local_search_iterative,
         }
         self.heuristic_grade = {}
         self.random_grade = {}
@@ -208,7 +214,7 @@ class TSPProblem:
             grade = self._grade_method(instance_name, nodes, method_name, method, distance_matrix)
             if method_name == Method.GREEDY_REGRET_WEIGHTED:
                 self.heuristic_grade[instance_name] = grade
-            elif method_name == Method.RANDOM:
+            elif method_name == Method.RANDOM_SEQUENCE:
                 self.random_grade[instance_name] = grade
 
             end = perf_counter()

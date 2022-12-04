@@ -3,7 +3,7 @@ from enum import Enum, unique
 
 @unique
 class Method(Enum):
-    RANDOM = "random"
+    RANDOM_SEQUENCE = "random_sequence"
     NEAREST = "nearest"
     GREEDY_CYCLE = "greedy_cycle"
     GREEDY_REGRET = "greedy_regret"
@@ -20,3 +20,4 @@ class Method(Enum):
     LOCAL_SEARCH_CANDIDATES_HEURISTIC = "local_search_candidates_heuristic"
     LOCAL_SEARCH_MOVES_RANDOM = "local_search_moves_random"
     LOCAL_SEARCH_MSLS = "local_search_msls"
+    LOCAL_SEARCH_ITERATIVE = "local_search_iterative"
