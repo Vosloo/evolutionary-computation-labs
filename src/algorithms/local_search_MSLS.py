@@ -3,6 +3,7 @@ from src.model import DistanceMatrix, Node, Run
 
 from copy import deepcopy
 
+
 def local_search_MSLS(
     nodes: list[Node],
     distance_matrix: DistanceMatrix,
@@ -36,4 +37,3 @@ def local_search_MSLS(
 
     runs = [Run(selected_nodes[0].id, selected_nodes, distance_matrix) for selected_nodes in nodes_runs]
     return min(runs)._selected_nodes
-
