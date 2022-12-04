@@ -97,5 +97,3 @@ class DeltaIntraEdges(Delta):
 
         outerA.add_next_connection(innerB)
         outerB.add_prev_connection(innerA)
-
-        pass

@@ -25,7 +25,6 @@ def local_search_moves(
     nodes_set = set(nodes)
 
     move_list = _get_move_list(current_run.nodes, nodes_set, distance_matrix)
-    counter = 0
     while True:
         if current_run.score < 0:
             raise ValueError("Current solution is not valid!")
@@ -45,11 +44,7 @@ def local_search_moves(
             current_sequence = set(current_run.nodes)
 
             # Add new moves to move_list
-            move_list += _get_updated_move_list(
-                move, current_sequence, nodes_set, distance_matrix, counter
-            )
-
-            counter += 1
+            move_list += _get_updated_move_list(move, current_sequence, nodes_set, distance_matrix)
 
             # Remove used move
             to_remove.add(move)
@@ -77,9 +72,9 @@ def _get_move_list(
     original_sequence: list[Node], nodes: set[Node], distance_matrix: DistanceMatrix
 ) -> list[Delta]:
     inter_moves = _inter(original_sequence, nodes, distance_matrix)
-    # intra_moves = _intra(original_sequence, distance_matrix)
+    intra_moves = _intra(original_sequence, distance_matrix)
 
-    move_list: list[Delta] = inter_moves # inter_moves + intra_moves
+    move_list: list[Delta] = inter_moves + intra_moves
     move_list = _filter_sort_move_list(move_list)
 
     return move_list
@@ -164,8 +159,7 @@ def _is_intra_edges_move_valid(move: DeltaIntraEdges, current_sequence: set[Node
     elif outerA.prev_connection == innerA:
         if outerB.prev_connection == innerB:
             return MoveAction.KEEP
-        elif outerB.next_connection == innerB:
-            return MoveAction.USE
+        # Deleted USE when both are reversed
 
     return MoveAction.REMOVE
 
@@ -175,7 +169,6 @@ def _get_updated_move_list(
     current_sequence: set[Node],
     nodes: set[Node],
     distance_matrix: DistanceMatrix,
-    counter: int,
 ) -> list[Delta]:
     # Create all combinations for newly added node with all nodes not in the sequence
     # and
@@ -211,11 +204,19 @@ def _get_updated_move_list(
         outerA_1, outerA_2 = old_outer_node.prev_connection, old_outer_node
         for node in current_sequence:
             # Case for outerA_1:
-            if node not in (outerA_1, outerA_1.next_connection, outerA_1.next_connection.next_connection):
+            if node not in (
+                outerA_1,
+                outerA_1.next_connection,
+                outerA_1.next_connection.next_connection,
+            ):
                 intra_delta.append(DeltaIntraEdges(outerA_1, node, distance_matrix))
 
             # Case for outerA_2:
-            if node not in (outerA_2, outerA_2.next_connection, outerA_2.next_connection.next_connection):
+            if node not in (
+                outerA_2,
+                outerA_2.next_connection,
+                outerA_2.next_connection.next_connection,
+            ):
                 intra_delta.append(DeltaIntraEdges(outerA_2, node, distance_matrix))
 
     # New delta edges are created by BOTH DeltaInterNodes and DeltaIntraEdges
@@ -225,33 +226,15 @@ def _get_updated_move_list(
     # Create all combinations for removed edge with all edges in the sequence
     elif isinstance(current_move, DeltaIntraEdges):
         outerA, outerB = current_move.nodes
-        innerA, innerB = outerA.next_connection, outerB.prev_connection
 
         for node in current_sequence:
             if node in (outerA, outerB):
                 continue
 
-            # outerA always as A
-            # outerB always as B
-
-            # TODO: THE FOLLOWING IS NOT TRUE!
-            # We work on old configuration - so we need to check whether outerA is connected to node:
-            # TODO: WE WORK ON NEW CONFIGURATION. VERIFY IT. THE PROBLEM IS SELECTION OF EDGE WHERE:
-            # TODO: OUTERA == OUTERB
-            # - outerA is connected to node (and create connection for outerB)
-            # - outerB is connected to node (and create connection for outerA)
-            if (
-                outerA.next_connection != node
-                and innerB != node
-                # and innerB.prev_connection != node  # Will it work?
-            ):
+            if node != outerB.prev_connection and node.next_connection != outerB.prev_connection:
                 intra_delta.append(DeltaIntraEdges(node, outerB, distance_matrix))
 
-            if (
-                outerB.prev_connection != node
-                and innerA != node
-                # and innerA.next_connection != node  # Will it work?
-            ):
+            if node != outerA.next_connection and node.prev_connection != outerA.next_connection:
                 intra_delta.append(DeltaIntraEdges(outerA, node, distance_matrix))
 
     return inter_delta + intra_delta
