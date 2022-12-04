@@ -1,6 +1,7 @@
 from src.algorithms import local_search_moves, random
 from src.model import DistanceMatrix, Node, Run
 
+from copy import deepcopy
 
 def local_search_MSLS(
     nodes: list[Node],
@@ -22,12 +23,12 @@ def local_search_MSLS(
 
     nodes_runs: list[list[Node]] = []
     for _ in range(no_iterations):
-        print(f"\r{_ + 1:3} / {no_iterations:3}", end="")
-        initial_solution = random(nodes, **kwargs)
+        # print(f"{_ + 1:3} / {no_iterations:3}")
+        initial_solution = random(deepcopy(nodes), **kwargs)
         nodes_runs.append(
             local_search_moves(
                 initial_solution=initial_solution,
-                nodes=nodes,
+                nodes=deepcopy(nodes),
                 distance_matrix=distance_matrix,
                 **kwargs,
             )
