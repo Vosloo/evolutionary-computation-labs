@@ -1,6 +1,8 @@
 from enum import Enum
 from itertools import combinations, product
 
+import numpy as np
+
 from src.model import Delta, DeltaInterNodes, DeltaIntraEdges, DistanceMatrix, Node, Run
 from src.utils import get_edges
 

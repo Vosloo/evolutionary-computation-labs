@@ -8,6 +8,7 @@ from src.algorithms import (
     local_search,
     local_search_candidates,
     local_search_moves,
+    local_search_MSLS,
     nearest,
     random,
 )
@@ -79,6 +80,9 @@ params = {
     Method.LOCAL_SEARCH_MOVES_RANDOM: {
         "use_heuristic": False,
     },
+    Method.LOCAL_SEARCH_MSLS: {
+        "no_iterations": 200,
+    },
 }
 
 
@@ -104,6 +108,7 @@ class TSPProblem:
             Method.LOCAL_SEARCH_CANDIDATES_RANDOM: local_search_candidates,
             Method.LOCAL_SEARCH_CANDIDATES_HEURISTIC: local_search_candidates,
             Method.LOCAL_SEARCH_MOVES_RANDOM: local_search_moves,
+            Method.LOCAL_SEARCH_MSLS: local_search_MSLS,
         }
         self.heuristic_grade = {}
         self.random_grade = {}
