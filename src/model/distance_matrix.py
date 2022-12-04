@@ -57,7 +57,7 @@ class DistanceMatrix:
         """
         distances = self.distance_matrix[pivot_node.id]
         sorted_indices = np.argsort(distances)
-        return [i for i in sorted_indices[1:n + 1]]
+        return [i for i in sorted_indices[1 : n + 1]]
 
     def get_distance(self, node: Node, other_node: Node) -> int:
         return self.distance_matrix[node.id, other_node.id]
