@@ -73,18 +73,3 @@ def find_nodes_in_sequence(nodes: list[Node], sequence: list[Node]) -> list[int 
         raise ValueError("Not all indices were found!")
 
     return node_idx
-
-
-def validate_sequence(sequence: list[Node]) -> bool:
-    starting_node = sequence[0]
-    current_node = starting_node
-
-    while True:
-        current_node = current_node.next_connection
-        if current_node == starting_node:
-            break
-
-        if current_node is None:
-            return False
-
-    return True

@@ -85,8 +85,7 @@ params = {
         "no_iterations": 200,
     },
     Method.LOCAL_SEARCH_ITERATIVE: {
-        "no_candidates": 10,
-        "max_runtime": 10,
+        "max_runtime": 105,
     },
 }
 
