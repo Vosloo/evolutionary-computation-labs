@@ -31,7 +31,7 @@ def local_search_iterative(
     nodes_set = set(nodes)
 
     current_sequence = random_sequence(deepcopy(nodes), **kwargs)
-    
+
     print("\nIs random sequence valid?", validate_sequence(current_sequence))
     current_sequence = local_search_candidates(
         initial_solution=current_sequence,
@@ -76,7 +76,9 @@ def _perturbation(selected_nodes: list[Node], nodes: set[Node]) -> list[Node]:
     sequence_nodes = set(selected_nodes)
     unsequenced_nodes = nodes - sequence_nodes
 
-    print(f"sequence_nodes.intersection(unsequenced_nodes): {sequence_nodes.intersection(unsequenced_nodes)}")
+    print(
+        f"sequence_nodes.intersection(unsequenced_nodes): {sequence_nodes.intersection(unsequenced_nodes)}"
+    )
 
     if len(sequence_nodes) < perturbation_factor:
         raise ValueError("Perturbation factor cannnot be larger than the number of sequenced nodes")

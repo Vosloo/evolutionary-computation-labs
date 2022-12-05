@@ -15,7 +15,7 @@ class Run:
             if node.next_connection != selected_nodes[ind + 1]:
                 raise ValueError(f"Selected nodes {node} are not connected")
         if selected_nodes[0].prev_connection != selected_nodes[-1]:
-            raise ValueError(f"Selected nodes {selected_nodes[0]} are not connected") 
+            raise ValueError(f"Selected nodes {selected_nodes[0]} are not connected")
 
         self._distance_matrix: DistanceMatrix = distance_matrix
 
