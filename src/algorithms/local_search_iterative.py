@@ -74,8 +74,8 @@ def _perturbation(selected_nodes: list[Node], nodes: set[Node]) -> list[Node]:
     if len(unsequenced_nodes) < perturbation_factor:
         raise ValueError("Perturbation factor cannnot be larger than the number of unsequenced nodes")
 
-    old_nodes: list[Node] = sample(sequence_nodes, perturbation_factor)
-    new_nodes: list[Node] = sample(unsequenced_nodes, perturbation_factor)
+    old_nodes: list[Node] = sample(list(sequence_nodes), perturbation_factor)
+    new_nodes: list[Node] = sample(list(unsequenced_nodes), perturbation_factor)
 
     for old_node, new_node in zip(old_nodes, new_nodes):
         prev_node, next_node = old_node.connections
