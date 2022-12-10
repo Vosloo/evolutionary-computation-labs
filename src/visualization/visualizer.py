@@ -45,7 +45,7 @@ class Visualizer:
     def visualise_solution(self, grade: Grade, instance_name: str, method_name: Method) -> None:
         G_all = nx.Graph()
         for node in self.instance_nodes[instance_name]:
-            G_all.add_node(node, pos=(node.x, node.y))
+            G_all.add_node(node, pos=(node.x, node.y), size=node.cost)
 
         pos_all = nx.get_node_attributes(G_all, "pos")
 
@@ -65,6 +65,16 @@ class Visualizer:
         # Add node colors from gradient adding legend
         node_colors = self._map_linear_gradient(nodes)
 
+        all_nodes_sizes = [node.cost for node in self.instance_nodes[instance_name]]
+        all_nodes_sizes = [
+            round(
+                200
+                + (1000 - 200)
+                * ((node_size - min(all_nodes_sizes)) / (max(all_nodes_sizes) - min(all_nodes_sizes)))
+            )
+            for node_size in all_nodes_sizes
+        ]
+
         # Normalize node sizes from 200 to 1000
         node_sizes = [node.cost for node in nodes]
         node_sizes = [
@@ -75,7 +85,7 @@ class Visualizer:
             for node_size in node_sizes
         ]
 
-        nx.draw_networkx_nodes(G_all, pos_all, node_color="#c6c6c6", node_size=150)
+        nx.draw_networkx_nodes(G_all, pos_all, node_color="#c6c6c6", node_size=all_nodes_sizes)
         nx.draw_networkx_nodes(G, pos, node_color=node_colors, node_size=node_sizes)
         nx.draw_networkx_edges(G, pos, width=1.0, alpha=0.5)
         nx.draw_networkx_labels(G, pos, font_size=10, font_family="sans-serif")
