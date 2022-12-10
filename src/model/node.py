@@ -10,21 +10,25 @@ class Node:
         self.next_connection: Node = None
         self.prev_connection: Node = None
 
-    def add_prev_connection(self, node: Node) -> None:
+    def add_prev_connection(self, node: Node) -> Node:
         if self.prev_connection is not None or node.next_connection is not None:
             raise ValueError("Nodes already have connections!")
 
         self.prev_connection = node
         node.next_connection = self
 
-    def add_next_connection(self, node: Node) -> None:
+        return self
+
+    def add_next_connection(self, node: Node) -> Node:
         if self.next_connection is not None or node.prev_connection is not None:
             raise ValueError("Nodes already have connections!")
 
         self.next_connection = node
         node.prev_connection = self
 
-    def remove_connection(self, node: Node) -> None:
+        return self
+
+    def remove_connection(self, node: Node) -> Node:
         if node == self.next_connection:
             self.next_connection = None
             node.prev_connection = None
@@ -33,6 +37,8 @@ class Node:
             node.next_connection = None
         else:
             raise ValueError("Node is not connected to this node")
+
+        return self
 
     def reverse_connections(self) -> None:
         """Reverses the order of the connections in place"""

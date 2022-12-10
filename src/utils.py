@@ -20,7 +20,10 @@ def linked_to_sequence(starting_node: Node) -> list[Node]:
     while True:
         sequence.append(current_node)
         current_node = current_node.next_connection
-        if current_node == starting_node or current_node is None:
+        if current_node is None:
+            raise ValueError("current_node is None")
+
+        if current_node == starting_node:
             break
 
     return sequence

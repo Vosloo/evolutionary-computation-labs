@@ -21,3 +21,5 @@ class Method(Enum):
     LOCAL_SEARCH_MOVES_RANDOM = "local_search_moves_random"
     LOCAL_SEARCH_MSLS = "local_search_msls"
     LOCAL_SEARCH_ITERATIVE = "local_search_iterative"
+    LOCAL_SEARCH_LSN_NO_LS = "local_search_lsn_no_ls"
+    LOCAL_SEARCH_LSN_WITH_LS = "local_search_lsn_with_ls"

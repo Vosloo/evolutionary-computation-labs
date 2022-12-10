@@ -10,6 +10,7 @@ from src.algorithms import (
     local_search_iterative,
     local_search_moves,
     local_search_MSLS,
+    local_search_LSN,
     nearest,
     random_sequence,
 )
@@ -87,6 +88,18 @@ params = {
     Method.LOCAL_SEARCH_ITERATIVE: {
         "max_runtime": 105,
     },
+    Method.LOCAL_SEARCH_LSN_NO_LS: {
+        "max_runtime": 105,
+        "is_local_search_enabled": False,
+        "k_regret": 2,
+        "regret_weights": [0.5, 0.5],
+    },
+    Method.LOCAL_SEARCH_LSN_WITH_LS: {
+        "max_runtime": 105,
+        "is_local_search_enabled": True,
+        "k_regret": 2,
+        "regret_weights": [0.5, 0.5],
+    },
 }
 
 
@@ -114,6 +127,8 @@ class TSPProblem:
             Method.LOCAL_SEARCH_MOVES_RANDOM: local_search_moves,
             Method.LOCAL_SEARCH_MSLS: local_search_MSLS,
             Method.LOCAL_SEARCH_ITERATIVE: local_search_iterative,
+            Method.LOCAL_SEARCH_LSN_NO_LS: local_search_LSN,
+            Method.LOCAL_SEARCH_LSN_WITH_LS: local_search_LSN,
         }
         self.heuristic_grade = {}
         self.random_grade = {}
