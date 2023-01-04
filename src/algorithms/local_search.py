@@ -1,3 +1,4 @@
+from copy import deepcopy
 from itertools import combinations, product
 
 import numpy as np
@@ -12,7 +13,7 @@ from src.model import (
     Run,
 )
 from src.utils import get_edges
-
+from src.algorithms import random_sequence
 
 def local_search(
     initial_solution: list[Node],
@@ -23,7 +24,7 @@ def local_search(
     **kwargs,
 ) -> list[Node]:
     if initial_solution is None:
-        raise ValueError("Initial solution is None!")
+        initial_solution = random_sequence(deepcopy(nodes), **kwargs)
 
     nodes_set = set(nodes)
 
