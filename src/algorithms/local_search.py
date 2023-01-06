@@ -3,6 +3,7 @@ from itertools import combinations, product
 
 import numpy as np
 
+from src.algorithms import random_sequence
 from src.model import (
     Delta,
     DeltaInterNodes,

@@ -45,7 +45,11 @@ def local_search_LSN(
 
         if is_local_search_enabled:
             new_sequence = local_search(
-                new_sequence, deepcopy(nodes), distance_matrix, search_type="steepest", intra_type="edges"
+                new_sequence,
+                deepcopy(nodes),
+                distance_matrix,
+                search_type="steepest",
+                intra_type="edges",
             )
 
         new_run = Run(new_sequence[0].id, new_sequence, distance_matrix)
