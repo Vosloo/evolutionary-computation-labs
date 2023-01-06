@@ -16,6 +16,7 @@ from src.model import (
 from src.utils import get_edges
 from src.algorithms import random_sequence
 
+
 def local_search(
     initial_solution: list[Node],
     nodes: list[Node],
