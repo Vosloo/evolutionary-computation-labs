@@ -13,9 +13,11 @@ from src.algorithms import (
     local_search_LSN,
     nearest,
     random_sequence,
+    hybrid_evolution,
 )
 from src.data_loader import DataLoader
 from src.model import DistanceMatrix, Grade, Instance, Node, Run
+from src.model.enum import Operator
 
 TYPE_METHOD_GRADES = dict[str, Grade]
 TYPE_INSTANCE_GRADES = dict[str, TYPE_METHOD_GRADES]
@@ -100,6 +102,34 @@ params = {
         "k_regret": 2,
         "regret_weights": [0.5, 0.5],
     },
+    Method.HYBRID_EVOLUTION_OPERATOR_1: {
+        "max_runtime": 105,
+        "population_size": 20,
+        "operator": Operator.OPERATOR_1,
+        "is_local_search_enabled": True,
+    },
+    Method.HYBRID_EVOLUTION_OPERATOR_1_NO_LS: {
+        "max_runtime": 105,
+        "population_size": 20,
+        "operator": Operator.OPERATOR_1,
+        "is_local_search_enabled": False,
+    },
+    Method.HYBRID_EVOLUTION_OPERATOR_2: {
+        "max_runtime": 105,
+        "population_size": 20,
+        "operator": Operator.OPERATOR_2,
+        "is_local_search_enabled": True,
+        "k_regret": 2,
+        "regret_weights": [0.5, 0.5],
+    },
+    Method.HYBRID_EVOLUTION_OPERATOR_2_NO_LS: {
+        "max_runtime": 105,
+        "population_size": 20,
+        "operator": Operator.OPERATOR_2,
+        "is_local_search_enabled": False,
+        "k_regret": 2,
+        "regret_weights": [0.5, 0.5],
+    },
 }
 
 
@@ -129,12 +159,18 @@ class TSPProblem:
             Method.LOCAL_SEARCH_ITERATIVE: local_search_iterative,
             Method.LOCAL_SEARCH_LSN_NO_LS: local_search_LSN,
             Method.LOCAL_SEARCH_LSN_WITH_LS: local_search_LSN,
+            Method.HYBRID_EVOLUTION_OPERATOR_1: hybrid_evolution,
+            Method.HYBRID_EVOLUTION_OPERATOR_1_NO_LS: hybrid_evolution,
+            Method.HYBRID_EVOLUTION_OPERATOR_2: hybrid_evolution,
+            Method.HYBRID_EVOLUTION_OPERATOR_2_NO_LS: hybrid_evolution,
         }
         self.heuristic_grade = {}
         self.random_grade = {}
         print(f"Available methods: {[method.name for method in self.methods.keys()]}")
 
-    def run(self, instances: list[str] = None, methods: list[Method] = None) -> TYPE_INSTANCE_GRADES:
+    def run(
+        self, instances: list[str] = None, methods: list[Method] = None, kwargs=None
+    ) -> TYPE_INSTANCE_GRADES:
         instance_grades = {}
 
         if instances is None:
@@ -146,7 +182,7 @@ class TSPProblem:
             print(f"\nRunning {instance_name} instance")
             distance_matrix = DistanceMatrix(instance)
             nodes = self._get_nodes(instance)
-            grades = self._grade_methods(instance_name, nodes, distance_matrix, methods)
+            grades = self._grade_methods(instance_name, nodes, distance_matrix, methods, **kwargs)
             instance_grades[instance_name] = grades
 
         return instance_grades
@@ -169,6 +205,7 @@ class TSPProblem:
         method_name: Method,
         method: callable,
         distance_matrix: DistanceMatrix,
+        **kwargs,
     ) -> Grade:
         runs: list[Run] = []
         best_run: Run = None
@@ -188,13 +225,18 @@ class TSPProblem:
             else:
                 initial_solution = None
 
-            parameters = {
-                "pivot_node": pivot_node,
-                "nodes": nodes_cp,
-                "node_coverage": round(len(nodes_cp) / 2),
-                "distance_matrix": distance_matrix,
-                "initial_solution": initial_solution,
-            } | params[method_name]
+            parameters = (
+                {
+                    "pivot_node": pivot_node,
+                    "nodes": nodes_cp,
+                    "node_coverage": round(len(nodes_cp) / 2),
+                    "distance_matrix": distance_matrix,
+                    "initial_solution": initial_solution,
+                    "instance_name": instance_name,
+                }
+                | params[method_name]
+                | kwargs
+            )
 
             selected_nodes = method(**parameters)
             first_node = selected_nodes[0]
@@ -214,6 +256,7 @@ class TSPProblem:
         nodes: list[Node],
         distance_matrix: DistanceMatrix,
         methods: list[Method] = None,
+        **kwargs,
     ) -> TYPE_METHOD_GRADES:
         grades: TYPE_METHOD_GRADES = {}
 
@@ -225,7 +268,9 @@ class TSPProblem:
         for method_name, method in selected_methods.items():
             print(f"Running {method_name.name} method for {self.no_runs} runs")
             start = perf_counter()
-            grade = self._grade_method(instance_name, nodes, method_name, method, distance_matrix)
+            grade = self._grade_method(
+                instance_name, nodes, method_name, method, distance_matrix, **kwargs
+            )
             if method_name == Method.GREEDY_REGRET_WEIGHTED:
                 self.heuristic_grade[instance_name] = grade
             elif method_name == Method.RANDOM_SEQUENCE:

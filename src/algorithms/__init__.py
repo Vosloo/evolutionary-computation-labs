@@ -9,6 +9,7 @@ __all__ = [
     "local_search_MSLS",
     "greedy_cycle",
     "greedy_regret",
+    "hybrid_evolution",
     "Method",
 ]
 
@@ -25,3 +26,4 @@ from src.algorithms.local_search_moves import local_search_moves
 from src.algorithms.local_search_MSLS import local_search_MSLS
 from src.algorithms.local_search_iterative import local_search_iterative
 from src.algorithms.local_search_LSN import local_search_LSN
+from src.algorithms.hybrid_evolution import hybrid_evolution

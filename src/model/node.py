@@ -1,8 +1,9 @@
 from __future__ import annotations
+from typing import Literal
 
 
 class Node:
-    def __init__(self, id, x, y, cost) -> None:
+    def __init__(self, id: int, x: int, y: int, cost: float) -> None:
         self.id = id
         self.x = x
         self.y = y
@@ -37,6 +38,18 @@ class Node:
             node.next_connection = None
         else:
             raise ValueError("Node is not connected to this node")
+
+        return self
+
+    def replace_connection(self, node: Node, which: Literal["prev", "next"]) -> Node:
+        if which == "prev":
+            self.prev_connection.remove_connection(self)
+            self.add_prev_connection(node)
+        elif which == "next":
+            self.next_connection.remove_connection(self)
+            self.add_next_connection(node)
+        else:
+            raise ValueError("Invalid value for which")
 
         return self
 

@@ -23,3 +23,7 @@ class Method(Enum):
     LOCAL_SEARCH_ITERATIVE = "local_search_iterative"
     LOCAL_SEARCH_LSN_NO_LS = "local_search_lsn_no_ls"
     LOCAL_SEARCH_LSN_WITH_LS = "local_search_lsn_with_ls"
+    HYBRID_EVOLUTION_OPERATOR_1 = "hybrid_evolution_operator_1"
+    HYBRID_EVOLUTION_OPERATOR_1_NO_LS = "hybrid_evolution_operator_1_no_ls"
+    HYBRID_EVOLUTION_OPERATOR_2 = "hybrid_evolution_operator_2"
+    HYBRID_EVOLUTION_OPERATOR_2_NO_LS = "hybrid_evolution_operator_2_no_ls"
