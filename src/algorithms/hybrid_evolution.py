@@ -186,7 +186,8 @@ def generate_initial_population(
         if initial_runs[ind].score not in population_scores:
             population_scores.add(initial_runs[ind].score)
             population[current_id] = Run(current_id, deepcopy(initial_runs[ind].nodes), distance_matrix)
-            ind += 1
             current_id += 1
+        
+        ind += 1
 
     return (population, current_id)
